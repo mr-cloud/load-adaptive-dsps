@@ -1,40 +1,38 @@
 package org.mlgb.dsps.monitor;
-/**
- * Monitor and gather the running parameters of the cluster from
- * Storm UI, Kafka and Zac (Resource Managment Layer).
- * @author Leo
- *
- */
-import org.json.simple.JSONObject;
+import org.mlgb.dsps.utils.ClusterSummaryVO;
 import org.mlgb.dsps.utils.Consts;
+import org.mlgb.dsps.utils.MachinesStatsVO;
+import org.mlgb.dsps.utils.MessagesStatsVO;
+import org.mlgb.dsps.utils.TopologiesSummaryVO;
+import org.mlgb.dsps.utils.TopologyProfileVO;
 
 public interface NightsWatcher {
     /*
      * from Storm UI
      */
-    default JSONObject getClusterSummary(){
+    default ClusterSummaryVO getClusterSummary(){
         return getClusterSummary(Consts.CLUSTER_SUMMARY);
     };
     
-    JSONObject getClusterSummary(String url);
+    ClusterSummaryVO getClusterSummary(String url);
     
-    JSONObject getTopologiesSummary(String url);
-    default JSONObject getTopologiesSummary(){
+    TopologiesSummaryVO getTopologiesSummary(String url);
+    default TopologiesSummaryVO getTopologiesSummary(){
         return getTopologiesSummary(Consts.TOPOLOGY_SUMMARY);
     }
     
-    JSONObject getTopologyProfile(String prefix, String id);
-    default JSONObject getTopologyProfile(String id){
+    TopologyProfileVO getTopologyProfile(String prefix, String id);
+    default TopologyProfileVO getTopologyProfile(String id){
         return getTopologyProfile(Consts.TOPOLOGY_PROFILE_PREFIX, id);
     }
     
     /*
      * from Zac
      */
-    JSONObject getMachinesNumber();
+    MachinesStatsVO getMachinesStats();
     
     /*
-     * from Kafka
+     * from Kafka and Zookeeper
      */
-    long getMessagesNumberInQue();
+    MessagesStatsVO getMessagesStats();
 }
