@@ -34,8 +34,8 @@
     </dependency>
     <dependency>
     	<groupId>org.apache.kafka</groupId>
-    	<artifactId>kafka_2.10</artifactId>
-    	<version>0.10.0.0</version>
+    	<artifactId>kafka_2.11</artifactId>
+    	<version>0.9.0.0</version>
     </dependency>
     <dependency>
     	<groupId>org.apache.httpcomponents</groupId>
@@ -48,4 +48,31 @@
     	<version>2.3.1</version>
     </dependency>
   </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                    <archive>
+                        <manifest>
+                            <mainClass>org.mlgb.storm.dsps.XXX</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+  
 </project>

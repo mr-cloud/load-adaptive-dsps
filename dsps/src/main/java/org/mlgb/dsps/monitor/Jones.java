@@ -12,6 +12,8 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.apache.kafka.clients.producer.Callback;
+import org.apache.kafka.clients.producer.RecordMetadata;
 import org.mlgb.dsps.utils.ClusterSummaryVO;
 import org.mlgb.dsps.utils.Consts;
 import org.mlgb.dsps.utils.MachinesStatsVO;
@@ -28,10 +30,16 @@ import uni.akilis.helper.LoggerX;
  * @author Leo
  *
  */
-public class Jones implements NightsWatcher{
+public class Jones implements NightsWatcher, Callback{
     
     public static final String TAG = Jones.class.getName();  
     private CloseableHttpClient httpclient = HttpClients.createDefault();
+    private MessagesStatsVO messagesStats;
+    
+    public Jones() {
+        super();
+        this.messagesStats = new MessagesStatsVO();
+    }
     
     private <T> Object getParams(URI uri, Class<T> cls){
         try {
@@ -117,9 +125,12 @@ public class Jones implements NightsWatcher{
 
     @Override
     public MessagesStatsVO getMessagesStats() {
-        // TODO Auto-generated method stub
-        // producer.messagesTotal - zookeeper.messagesConsumed
-        return null;
+        // producer.messagesTotal, zookeeper.messagesConsumed
+        return this.messagesStats;
+    }
+    @Override
+    public void onCompletion(RecordMetadata metadata, Exception exception) {
+        this.messagesStats.setMessagesTotal(this.messagesStats.getMessagesTotal() + 1);
     }
 
 }

@@ -1,19 +1,24 @@
 package org.mlgb.dsps.utils;
 
 public class MessagesStatsVO {
-    private int messagesTotal;
-    private int messagesConsumed;
-    public int getMessagesTotal() {
+    private long messagesTotal;
+    private long messagesConsumed;
+    public long getMessagesTotal() {
         return messagesTotal;
     }
-    public void setMessagesTotal(int messagesTotal) {
+    public void setMessagesTotal(long messagesTotal) {
         this.messagesTotal = messagesTotal;
     }
-    public int getMessagesConsumed() {
+    public long getMessagesConsumed() {
         return messagesConsumed;
     }
-    public void setMessagesConsumed(int messagesConsumed) {
+    public void setMessagesConsumed(long messagesConsumed) {
         this.messagesConsumed = messagesConsumed;
+    }
+    public MessagesStatsVO() {
+        super();
+        this.messagesTotal = 0;
+        this.messagesConsumed = 0;
     }
     
 }
