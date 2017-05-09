@@ -30,7 +30,6 @@ public class InterProcessStreamReader implements Runnable{
 	}
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
 		String msg;
 		try {
 			while((msg=br.readLine()) != null){
@@ -45,7 +44,6 @@ public class InterProcessStreamReader implements Runnable{
 				}
 			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

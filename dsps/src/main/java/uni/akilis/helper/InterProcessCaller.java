@@ -24,7 +24,6 @@ public abstract class InterProcessCaller {
 	 * @throws IOException 
 	 */
 	public void processCall(List<String> cmd, String processName) throws IOException {
-		// TODO Auto-generated method stub
 		if(cmd == null){
 			LoggerX.error(LOG_TAG, "args doesnot match the needed!\ntask terminated.");
 			return;

@@ -20,5 +20,10 @@ public class Consts {
 
     public static final String KAFKA_BROKERS = "localhost:9092";
     
+    public static final String ZOOKEEPER_HOST_PORT = "localhost:2181";
+    public static final int ZOOKEEPER_TIMEOUT = 5000;
+    //FIXME
+    public static final String OFFSET_ZNODE = "";
+    
     
 }

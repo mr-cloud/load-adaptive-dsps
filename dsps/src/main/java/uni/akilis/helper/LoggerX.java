@@ -6,7 +6,6 @@ package uni.akilis.helper;
  */
 public class LoggerX {
 	private static final boolean LOG_ON = true;
-	private static final boolean LOG_OFF = false;
 	private static boolean LOG_STATUS = LOG_ON;
 	
 	/**
@@ -63,7 +62,6 @@ public class LoggerX {
 		error(msg);
 	}
 	public static void println() {
-		// TODO Auto-generated method stub
 		print("\n");
 	}
 	

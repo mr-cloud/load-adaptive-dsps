@@ -24,23 +24,140 @@ import org.mlgb.dsps.utils.TopologyProfileVO;
 import com.google.gson.Gson;
 
 import uni.akilis.helper.LoggerX;
-
+import org.apache.zookeeper.KeeperException;
+import org.apache.zookeeper.WatchedEvent;
+import org.apache.zookeeper.Watcher;
+import org.apache.zookeeper.ZooKeeper;
+import org.apache.zookeeper.data.Stat;
 /**
  * Monitor implementation module.
  * @author Leo
  *
  */
 public class Jones implements NightsWatcher, Callback{
-    
+
     public static final String TAG = Jones.class.getName();  
-    private CloseableHttpClient httpclient = HttpClients.createDefault();
+    private CloseableHttpClient httpclient;
     private MessagesStatsVO messagesStats;
-    
+
     public Jones() {
         super();
+        this.httpclient = HttpClients.createDefault();
         this.messagesStats = new MessagesStatsVO();
     }
-    
+
+    class OffsetExecutor implements Watcher{
+        private ZooKeeper zk;
+        private ZooKeeperConnection conn;
+        private Jones metricCallback;
+        private String znode;
+        private String data;
+        
+        public OffsetExecutor(String znode, Jones metricCallback) throws InterruptedException, KeeperException {
+            this.znode = znode;
+            this.metricCallback = metricCallback;
+            this.conn = new ZooKeeperConnection();
+            try {
+                this.zk = conn.connect(Consts.ZOOKEEPER_HOST_PORT);
+                Stat stat = znode_exists(this.znode);
+                if (stat != null) {
+                    byte[] b = zk.getData(this.znode, this, null);
+                    data = new String(b,
+                            "UTF-8");
+                    LoggerX.println(data);
+                    this.metricCallback.updateConsumerOffset(data);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } 
+
+        }
+
+        public  Stat znode_exists(String path) throws 
+        KeeperException,InterruptedException {
+            return zk.exists(path,true);
+        }
+
+        @Override
+        public void process(WatchedEvent event) {
+            if (event.getType() == Event.EventType.None) {
+                switch(event.getState()) {
+                case Expired:
+                    LoggerX.error("offset znode doesnot exist!");
+                    break;
+                default:
+                    break;
+                }
+            } else {
+                try {
+                    byte[] bn = zk.getData(this.znode,
+                            this, null);
+                    data = new String(bn,
+                            "UTF-8");
+                    LoggerX.println(data);
+                    this.metricCallback.updateConsumerOffset(data);
+                } catch(Exception ex) {
+                    LoggerX.println(ex.getMessage());
+                }
+            }            
+        }
+    }
+
+    class WhiteWalkerExecutor implements Runnable{
+        private WhiteWalkerProducer msgProducer;
+        private Callback metricCallback;
+        private Planning plan;
+
+        public WhiteWalkerExecutor(WhiteWalkerProducer msgProducer, Planning plan, Callback metricCallback){
+            this.msgProducer = msgProducer;
+            this.metricCallback = metricCallback;
+            this.plan = plan;
+        }
+        @Override
+        public void run() {
+            int planLen = this.plan.delayMilis.size();
+            int planIdx = 0;
+            int delay = this.plan.delayMilis.get(planIdx);
+            long cnt = 0;
+            while(true){
+                if (cnt >= this.plan.messagesPerInterval) {
+                    cnt = 0;
+                    planIdx += 1;
+                    if (planIdx >= planLen) {
+                        planIdx = 0;
+                    }
+                    delay = this.plan.delayMilis.get(planIdx);
+                }
+                this.msgProducer.produceWhiteWaker(this.metricCallback);
+                try {
+                    Thread.sleep(delay);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                cnt++;
+            }
+        }
+
+    }
+
+    public void uprising(String topicName, Planning plan){
+        Thread walker = new Thread(new WhiteWalkerExecutor(new WhiteWalkerProducer(topicName), plan, this));
+        walker.start();
+        try {
+            new OffsetExecutor(Consts.OFFSET_ZNODE, this);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (KeeperException e) {
+            e.printStackTrace();
+        }
+        // TODO persist the statistics in MongoDB
+    }
+
+    public void updateConsumerOffset(String data) {
+        // TODO Auto-generated method stub
+        
+    }
+
     private <T> Object getParams(URI uri, Class<T> cls){
         try {
             HttpGet httpget = new HttpGet(uri);

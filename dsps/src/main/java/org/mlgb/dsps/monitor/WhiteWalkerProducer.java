@@ -13,6 +13,8 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 //import ProducerRecord packages
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.mlgb.dsps.utils.Consts;
+
+import uni.akilis.helper.LoggerX;
 /**
  * Kafka producer: produce messages to Kafka and record the total number of messages.
  * @author Leo
@@ -26,7 +28,7 @@ public class WhiteWalkerProducer {
     public  WhiteWalkerProducer(String topicName) {
         // Check arguments length value
         if("".equals(topicName)){
-            System.out.println("Enter topic name");
+            LoggerX.println("Enter topic name");
             System.exit(1);
         }
         
