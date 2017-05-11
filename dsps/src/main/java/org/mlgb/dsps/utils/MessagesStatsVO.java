@@ -20,5 +20,10 @@ public class MessagesStatsVO {
         this.messagesTotal = 0;
         this.messagesConsumed = 0;
     }
+    @Override
+    public String toString() {
+        return "Messages stats:\n" + "#messages: " + this.messagesTotal + "\n"
+                + "#consumed messages: " + this.messagesConsumed;
+    }
     
 }

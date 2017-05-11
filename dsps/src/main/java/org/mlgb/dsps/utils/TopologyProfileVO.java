@@ -1,5 +1,7 @@
 package org.mlgb.dsps.utils;
 
+import java.util.List;
+
 public class TopologyProfileVO {
     private String id;
     private String name;
@@ -10,14 +12,11 @@ public class TopologyProfileVO {
     private int workersTotal;
     private int executorsTotal;
     private int replicationCount;
-    private double requestedMemOnHeap;
-    private double requestedMemOffHeap;
-    private double requestedTotalMem;
-    private double requestedCpu;
-    private double assignedMemOnHeap;
-    private double assignedMemOffHeap;
-    private double assignedTotalMem;
-    private double assignedCpu;
+    private int msgTimeout;
+    private String windowHint;
+    private List<TopologyStatVO> topologyStats;
+    private List<SpoutVO> spouts;
+    private List<BoltVO> bolts;
     public String getId() {
         return id;
     }
@@ -72,53 +71,46 @@ public class TopologyProfileVO {
     public void setReplicationCount(int replicationCount) {
         this.replicationCount = replicationCount;
     }
-    public double getRequestedMemOnHeap() {
-        return requestedMemOnHeap;
+    public int getMsgTimeout() {
+        return msgTimeout;
     }
-    public void setRequestedMemOnHeap(double requestedMemOnHeap) {
-        this.requestedMemOnHeap = requestedMemOnHeap;
+    public void setMsgTimeout(int msgTimeout) {
+        this.msgTimeout = msgTimeout;
     }
-    public double getRequestedMemOffHeap() {
-        return requestedMemOffHeap;
+    public String getWindowHint() {
+        return windowHint;
     }
-    public void setRequestedMemOffHeap(double requestedMemOffHeap) {
-        this.requestedMemOffHeap = requestedMemOffHeap;
+    public void setWindowHint(String windowHint) {
+        this.windowHint = windowHint;
     }
-    public double getRequestedTotalMem() {
-        return requestedTotalMem;
+    public List<TopologyStatVO> getTopologyStats() {
+        return topologyStats;
     }
-    public void setRequestedTotalMem(double requestedTotalMem) {
-        this.requestedTotalMem = requestedTotalMem;
+    public void setTopologyStats(List<TopologyStatVO> topologyStats) {
+        this.topologyStats = topologyStats;
     }
-    public double getRequestedCpu() {
-        return requestedCpu;
+    public List<SpoutVO> getSpouts() {
+        return spouts;
     }
-    public void setRequestedCpu(double requestedCpu) {
-        this.requestedCpu = requestedCpu;
+    public void setSpouts(List<SpoutVO> spouts) {
+        this.spouts = spouts;
     }
-    public double getAssignedMemOnHeap() {
-        return assignedMemOnHeap;
+    public List<BoltVO> getBolts() {
+        return bolts;
     }
-    public void setAssignedMemOnHeap(double assignedMemOnHeap) {
-        this.assignedMemOnHeap = assignedMemOnHeap;
+    public void setBolts(List<BoltVO> bolts) {
+        this.bolts = bolts;
     }
-    public double getAssignedMemOffHeap() {
-        return assignedMemOffHeap;
-    }
-    public void setAssignedMemOffHeap(double assignedMemOffHeap) {
-        this.assignedMemOffHeap = assignedMemOffHeap;
-    }
-    public double getAssignedTotalMem() {
-        return assignedTotalMem;
-    }
-    public void setAssignedTotalMem(double assignedTotalMem) {
-        this.assignedTotalMem = assignedTotalMem;
-    }
-    public double getAssignedCpu() {
-        return assignedCpu;
-    }
-    public void setAssignedCpu(double assignedCpu) {
-        this.assignedCpu = assignedCpu;
-    }
-    
+    @Override
+    public String toString() {
+        return "Topology profile:\n" + "id: " + this.id + "\n"
+                + "name: " + this.name + "\n"
+                + "status: " + this.status + "\n"
+                + "executors: " + this.executorsTotal + "\n"
+                + "tasks: " + this.tasksTotal
+                + "#spouts: " + this.spouts.size()
+                + "#bolts: " + this.bolts.size();
+    } 
 }
+
+

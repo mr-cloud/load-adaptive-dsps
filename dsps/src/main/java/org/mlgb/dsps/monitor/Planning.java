@@ -1,5 +1,6 @@
 package org.mlgb.dsps.monitor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -10,4 +11,14 @@ import java.util.List;
 public class Planning {
     public long messagesPerInterval;
     public List<Integer> delayMilis;
+    public Planning() {
+        super();
+        this.messagesPerInterval = 10;
+        this.delayMilis = new ArrayList<>();
+        this.delayMilis.add(100);
+        this.delayMilis.add(300);
+        this.delayMilis.add(1000);
+    }
+    
+    
 }

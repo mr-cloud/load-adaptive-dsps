@@ -15,5 +15,10 @@ public class MachinesStatsVO {
     public void setMachinesRunning(int machinesRunning) {
         this.machinesRunning = machinesRunning;
     }
+    @Override
+    public String toString() {
+        return "Machines stats:\n" + "#machines: " + this.machinesTotal + "\n"
+                + "#running machines: " + this.machinesRunning;
+    }
     
 }

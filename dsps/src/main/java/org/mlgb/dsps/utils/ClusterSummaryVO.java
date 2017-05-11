@@ -50,5 +50,11 @@ public class ClusterSummaryVO {
     public void setTasksTotal(int tasksTotal) {
         this.tasksTotal = tasksTotal;
     }
+    @Override
+    public String toString() {
+        return "slots free: " + this.getSlotsFree() + "\n"
+                + "executors: " + this.getExecutorsTotal() + "\n"
+                + "tasks: " + this.getTasksTotal() + "\n";
+    }
     
 }
