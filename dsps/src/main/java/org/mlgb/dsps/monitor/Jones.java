@@ -39,7 +39,9 @@ public class Jones implements NightsWatcher, Callback{
     public static final String TAG = Jones.class.getName();  
     private CloseableHttpClient httpclient;
     private MessagesStatsVO messagesStats;
-
+    private Thread walker;
+    private OffsetExecutor guard;
+    
     public Jones() {
         super();
         this.httpclient = HttpClients.createDefault();
@@ -52,16 +54,33 @@ public class Jones implements NightsWatcher, Callback{
         private Jones metricCallback;
         private String znode;
         private String data;
+        private boolean isWatching;
         
+        
+        public boolean isWatching() {
+            return isWatching;
+        }
+
+        public void setWatching(boolean isWatching) {
+            this.isWatching = isWatching;
+        }
+
         public OffsetExecutor(String znode, Jones metricCallback) throws InterruptedException, KeeperException {
             this.znode = znode;
             this.metricCallback = metricCallback;
             this.conn = new ZooKeeperConnection();
+            this.isWatching = true;
             try {
                 this.zk = conn.connect(Consts.ZOOKEEPER_HOST_PORT);
                 Stat stat = znode_exists(this.znode);
                 if (stat != null) {
-                    byte[] b = zk.getData(this.znode, this, null);
+                    byte[] b;
+                    if (this.isWatching) {
+                        b = zk.getData(this.znode, this, null);                        
+                    }
+                    else{
+                        b = zk.getData(this.znode, null, null);
+                    }
                     data = new String(b,
                             "UTF-8");
                     LoggerX.println(data);
@@ -90,8 +109,13 @@ public class Jones implements NightsWatcher, Callback{
                 }
             } else {
                 try {
-                    byte[] bn = zk.getData(this.znode,
-                            this, null);
+                    byte[] bn;
+                    if (this.isWatching) {
+                        bn = zk.getData(this.znode, this, null);                        
+                    }
+                    else{
+                        bn = zk.getData(this.znode, null, null);
+                    }
                     data = new String(bn,
                             "UTF-8");
                     LoggerX.println(data);
@@ -119,7 +143,7 @@ public class Jones implements NightsWatcher, Callback{
             int planIdx = 0;
             int delay = this.plan.delayMilis.get(planIdx);
             long cnt = 0;
-            while(true){
+            while(!Thread.interrupted()){
                 if (cnt >= this.plan.messagesPerInterval) {
                     cnt = 0;
                     planIdx += 1;
@@ -141,10 +165,10 @@ public class Jones implements NightsWatcher, Callback{
     }
 
     public void uprising(String topicName, Planning plan){
-        Thread walker = new Thread(new WhiteWalkerExecutor(new WhiteWalkerProducer(topicName), plan, this));
+        walker = new Thread(new WhiteWalkerExecutor(new WhiteWalkerProducer(topicName), plan, this));
         walker.start();
         try {
-            new OffsetExecutor(Consts.OFFSET_ZNODE, this);
+            guard = new OffsetExecutor(Consts.OFFSET_ZNODE, this);
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (KeeperException e) {
@@ -248,6 +272,11 @@ public class Jones implements NightsWatcher, Callback{
     @Override
     public void onCompletion(RecordMetadata metadata, Exception exception) {
         this.messagesStats.setMessagesTotal(this.messagesStats.getMessagesTotal() + 1);
+    }
+
+    public void hibernate() {
+        this.walker.interrupt();
+        this.guard.setWatching(false);
     }
 
 }
