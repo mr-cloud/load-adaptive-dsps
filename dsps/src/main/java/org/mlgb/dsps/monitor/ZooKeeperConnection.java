@@ -7,8 +7,8 @@ import java.util.concurrent.CountDownLatch;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.Watcher.Event.KeeperState;
+import org.mlgb.dsps.util.Consts;
 import org.apache.zookeeper.ZooKeeper;
-import org.mlgb.dsps.utils.Consts;
 
 public class ZooKeeperConnection {
 

@@ -1,4 +1,4 @@
-package org.mlgb.dsps.utils;
+package org.mlgb.dsps.util;
 /**
  * Some constants.
  * @author Leo
@@ -26,6 +26,7 @@ public class Consts {
     public static final String OFFSET_ZNODE = "/consumers/"
             + CONSUMER_GROUP_ID + "/offsets/"
             + TOPIC + "/0";
+    public static final String ZK_ROOT = "/kafka";
     
     
 }

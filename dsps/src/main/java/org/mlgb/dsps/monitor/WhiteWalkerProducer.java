@@ -12,7 +12,7 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 
 //import ProducerRecord packages
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.mlgb.dsps.utils.Consts;
+import org.mlgb.dsps.util.Consts;
 
 import uni.akilis.helper.LoggerX;
 /**

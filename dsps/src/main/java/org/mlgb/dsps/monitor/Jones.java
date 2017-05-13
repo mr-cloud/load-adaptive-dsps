@@ -14,12 +14,6 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.RecordMetadata;
-import org.mlgb.dsps.utils.ClusterSummaryVO;
-import org.mlgb.dsps.utils.Consts;
-import org.mlgb.dsps.utils.MachinesStatsVO;
-import org.mlgb.dsps.utils.MessagesStatsVO;
-import org.mlgb.dsps.utils.TopologiesSummaryVO;
-import org.mlgb.dsps.utils.TopologyProfileVO;
 
 import com.google.gson.Gson;
 
@@ -29,6 +23,12 @@ import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
+import org.mlgb.dsps.util.ClusterSummaryVO;
+import org.mlgb.dsps.util.Consts;
+import org.mlgb.dsps.util.MachinesStatsVO;
+import org.mlgb.dsps.util.MessagesStatsVO;
+import org.mlgb.dsps.util.TopologiesSummaryVO;
+import org.mlgb.dsps.util.TopologyProfileVO;
 /**
  * Monitor implementation module.
  * @author Leo
