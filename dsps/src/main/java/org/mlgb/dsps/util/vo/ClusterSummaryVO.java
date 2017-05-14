@@ -1,4 +1,4 @@
-package org.mlgb.dsps.util;
+package org.mlgb.dsps.util.vo;
 
 public class ClusterSummaryVO {
     private String stormVersion;

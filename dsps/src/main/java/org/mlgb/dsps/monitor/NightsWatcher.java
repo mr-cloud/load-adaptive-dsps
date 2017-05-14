@@ -1,10 +1,10 @@
 package org.mlgb.dsps.monitor;
-import org.mlgb.dsps.util.ClusterSummaryVO;
 import org.mlgb.dsps.util.Consts;
-import org.mlgb.dsps.util.MachinesStatsVO;
-import org.mlgb.dsps.util.MessagesStatsVO;
-import org.mlgb.dsps.util.TopologiesSummaryVO;
-import org.mlgb.dsps.util.TopologyProfileVO;
+import org.mlgb.dsps.util.vo.ClusterSummaryVO;
+import org.mlgb.dsps.util.vo.MachinesStatsVO;
+import org.mlgb.dsps.util.vo.MessagesStatsVO;
+import org.mlgb.dsps.util.vo.TopologiesSummaryVO;
+import org.mlgb.dsps.util.vo.TopologyProfileVO;
 
 public interface NightsWatcher {
     /*

@@ -23,12 +23,13 @@ import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
-import org.mlgb.dsps.util.ClusterSummaryVO;
 import org.mlgb.dsps.util.Consts;
-import org.mlgb.dsps.util.MachinesStatsVO;
-import org.mlgb.dsps.util.MessagesStatsVO;
-import org.mlgb.dsps.util.TopologiesSummaryVO;
-import org.mlgb.dsps.util.TopologyProfileVO;
+import org.mlgb.dsps.util.vo.ClusterSummaryVO;
+import org.mlgb.dsps.util.vo.ConsumerZnodeVO;
+import org.mlgb.dsps.util.vo.MachinesStatsVO;
+import org.mlgb.dsps.util.vo.MessagesStatsVO;
+import org.mlgb.dsps.util.vo.TopologiesSummaryVO;
+import org.mlgb.dsps.util.vo.TopologyProfileVO;
 /**
  * Monitor implementation module.
  * @author Leo
@@ -177,9 +178,9 @@ public class Jones implements NightsWatcher, Callback{
         // TODO persist the statistics in MongoDB
     }
 
-    public void updateConsumerOffset(String data) {
-        // TODO Auto-generated method stub
-        
+    public void updateConsumerOffset(String jsonStr) {
+        ConsumerZnodeVO vo = (ConsumerZnodeVO)new Gson().fromJson(jsonStr, ConsumerZnodeVO.class);
+        this.messagesStats.setMessagesConsumed(vo.getOffset() - 1);
     }
 
     private <T> Object getParams(URI uri, Class<T> cls){
@@ -188,9 +189,9 @@ public class Jones implements NightsWatcher, Callback{
             CloseableHttpResponse httpresponse = this.httpclient.execute(httpget);
             HttpEntity entity = httpresponse.getEntity();
             if (entity != null) {
-                httpresponse.close();
                 String jsonStr = EntityUtils.toString(entity);
                 LoggerX.println(TAG, "json response:\n" + jsonStr);
+                httpresponse.close();
                 return new Gson().fromJson(jsonStr, cls);
             }
         } catch (ClientProtocolException e) {
@@ -275,8 +276,12 @@ public class Jones implements NightsWatcher, Callback{
     }
 
     public void hibernate() {
-        this.walker.interrupt();
-        this.guard.setWatching(false);
+        if (this.walker != null) {
+            this.walker.interrupt();            
+        }  
+        if (this.guard != null) {
+            this.guard.setWatching(false);            
+        }
     }
 
 }

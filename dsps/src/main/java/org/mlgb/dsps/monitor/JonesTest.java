@@ -6,12 +6,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
-import org.mlgb.dsps.util.ClusterSummaryVO;
 import org.mlgb.dsps.util.Consts;
-import org.mlgb.dsps.util.MachinesStatsVO;
-import org.mlgb.dsps.util.MessagesStatsVO;
-import org.mlgb.dsps.util.TopologiesSummaryVO;
-import org.mlgb.dsps.util.TopologyProfileVO;
+import org.mlgb.dsps.util.vo.ClusterSummaryVO;
+import org.mlgb.dsps.util.vo.MachinesStatsVO;
+import org.mlgb.dsps.util.vo.MessagesStatsVO;
+import org.mlgb.dsps.util.vo.TopologiesSummaryVO;
+import org.mlgb.dsps.util.vo.TopologyProfileVO;
 
 import uni.akilis.helper.LoggerX;
 
@@ -55,7 +55,7 @@ public class JonesTest {
         }
         else {
             TopologyProfileVO topo = this.jones.getTopologyProfile(vo.getTopologies().get(0).getId());
-            assertNotNull(topo);
+            assertTrue("ACTIVE".equals(topo.getStatus()));
             LoggerX.println(topo.toString());
         }
     }

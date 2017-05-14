@@ -1,4 +1,4 @@
-package org.mlgb.dsps.util;
+package org.mlgb.dsps.util.vo;
 
 import java.util.List;
 
