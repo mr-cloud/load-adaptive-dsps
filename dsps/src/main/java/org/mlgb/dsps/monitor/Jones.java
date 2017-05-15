@@ -23,7 +23,10 @@ import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
+import org.bson.Document;
 import org.mlgb.dsps.util.Consts;
+import org.mlgb.dsps.util.dao.MetricsDAO;
+import org.mlgb.dsps.util.dao.MyMongoDatabaseFactory;
 import org.mlgb.dsps.util.vo.ClusterSummaryVO;
 import org.mlgb.dsps.util.vo.ConsumerZnodeVO;
 import org.mlgb.dsps.util.vo.MachinesStatsVO;
@@ -42,13 +45,18 @@ public class Jones implements NightsWatcher, Callback{
     private MessagesStatsVO messagesStats;
     private Thread walker;
     private OffsetExecutor guard;
-    
+    private Thread collector;
+
+
     public Jones() {
         super();
         this.httpclient = HttpClients.createDefault();
         this.messagesStats = new MessagesStatsVO();
     }
-
+    /**
+     * Thread for watching the offset of consumer on Zookeeper.
+     * 
+     */
     class OffsetExecutor implements Watcher{
         private ZooKeeper zk;
         private ZooKeeperConnection conn;
@@ -56,8 +64,8 @@ public class Jones implements NightsWatcher, Callback{
         private String znode;
         private String data;
         private boolean isWatching;
-        
-        
+
+
         public boolean isWatching() {
             return isWatching;
         }
@@ -127,7 +135,10 @@ public class Jones implements NightsWatcher, Callback{
             }            
         }
     }
-
+    /**
+     * Thread for producing messages into Kafka.
+     *
+     */
     class WhiteWalkerExecutor implements Runnable{
         private WhiteWalkerProducer msgProducer;
         private Callback metricCallback;
@@ -161,10 +172,45 @@ public class Jones implements NightsWatcher, Callback{
                 }
                 cnt++;
             }
+            this.msgProducer.closeProducer();
         }
 
     }
 
+    /**
+     * Thread for collecting and persisting metrics. 
+     *
+     */
+    class StatsCollector implements Runnable{
+        private MetricsDAO metricsDAO;
+        private Jones jones;
+        public StatsCollector(Jones jones) {
+            this.jones = jones;
+            this.metricsDAO = new MetricsDAO(MyMongoDatabaseFactory.getMongoDatabase(Consts.MONGO_DB_STORM));
+        }
+
+        @Override
+        public void run() {
+            while (!Thread.interrupted()) {
+                MachinesStatsVO machines = this.jones.getMachinesStats();
+                synchronized(this.jones.messagesStats){
+                    Document doc = new Document()
+                            .append(Consts.COLLECTION_METRIC_MACHINES_TOTAL, machines.getMachinesTotal())
+                            .append(Consts.COLLECTION_METRIC_MACHINES_RUNNING, machines.getMachinesRunning())
+                            .append(Consts.COLLECTION_METRIC_MESSAGES_TOTAL, this.jones.messagesStats.getMessagesTotal())
+                            .append(Consts.COLLECTION_METRIC_MESSAGES_RUNNING, this.jones.messagesStats.getMessagesConsumed());
+                    this.metricsDAO.saveMetrics(doc); 
+                }
+                try {
+                    Thread.sleep(Consts.METRICS_HEARTBEAT_MILLIS);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            LoggerX.println(TAG, "Stop collecting metrics.");
+        }
+
+    }
     public void uprising(String topicName, Planning plan){
         walker = new Thread(new WhiteWalkerExecutor(new WhiteWalkerProducer(topicName), plan, this));
         walker.start();
@@ -172,10 +218,13 @@ public class Jones implements NightsWatcher, Callback{
             guard = new OffsetExecutor(Consts.OFFSET_ZNODE, this);
         } catch (InterruptedException e) {
             e.printStackTrace();
+            LoggerX.println(TAG, "Cancel watching.");
         } catch (KeeperException e) {
             e.printStackTrace();
         }
-        // TODO persist the statistics in MongoDB
+        // persist the statistics into MongoDB
+        collector = new Thread(new StatsCollector(this));
+        collector.start();
     }
 
     public void updateConsumerOffset(String jsonStr) {
@@ -281,6 +330,9 @@ public class Jones implements NightsWatcher, Callback{
         }  
         if (this.guard != null) {
             this.guard.setWatching(false);            
+        }
+        if (this.collector != null) {
+            this.collector.interrupt();
         }
     }
 

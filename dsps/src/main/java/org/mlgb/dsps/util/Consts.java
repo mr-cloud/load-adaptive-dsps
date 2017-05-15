@@ -33,5 +33,26 @@ public class Consts {
     public static final String OFFSET_ZNODE = ZK_ROOT + "/"
             + CONSUMER_GROUP_ID + "/partition_0";
     
+    // mongodb://[username:password@]host1[:port1][,host2[:port2],...[,hostN[:portN]]][/[database][?options]]
+    public static final String MONGO_HOST = "localhost";
+    public static final String MONGO_PORT = "27017";
+    public static final String METRICS_COLLECTION = "metrics";
+    public static final String MONGO_DB_STORM = "storm";
+    public static final String MONGO_USERNAME = "";
+    public static final String MONGO_PASSWORD = "";
+    public static final String MONGO_SPEC_DB = "";
+    public static final String MONGO_CLIENT_URI = 
+            "mongodb://" 
+            + (MONGO_USERNAME.equals("")?"":(MONGO_USERNAME + ":")) 
+            + (MONGO_PASSWORD.equals("")?"":(MONGO_PASSWORD + "@"))
+            + MONGO_HOST 
+            + (MONGO_PORT.equals("")?"":(":" + MONGO_PORT))
+            + (MONGO_SPEC_DB.equals("")?"":("/" + MONGO_SPEC_DB));
+    public static final String COLLECTION_METRIC_MACHINES_TOTAL = "machinesTotal";
+    public static final String COLLECTION_METRIC_MACHINES_RUNNING = "machinesRunning";
+    public static final String COLLECTION_METRIC_MESSAGES_TOTAL = "messagesTotal";
+    public static final String COLLECTION_METRIC_MESSAGES_RUNNING = "messagesRunnning";
+    public static final long METRICS_HEARTBEAT_MILLIS = 10000;
+    
     
 }
