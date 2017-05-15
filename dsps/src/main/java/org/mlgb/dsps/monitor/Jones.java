@@ -325,6 +325,13 @@ public class Jones implements NightsWatcher, Callback{
     }
 
     public void hibernate() {
+        if (this.httpclient != null) {
+            try {
+                this.httpclient.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         if (this.walker != null) {
             this.walker.interrupt();            
         }  
