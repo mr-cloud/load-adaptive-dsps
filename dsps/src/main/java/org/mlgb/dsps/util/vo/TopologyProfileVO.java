@@ -106,9 +106,9 @@ public class TopologyProfileVO {
         return "Topology profile:\n" + "id: " + this.id + "\n"
                 + "name: " + this.name + "\n"
                 + "status: " + this.status + "\n"
-                + "executors: " + this.executorsTotal + "\n"
-                + "tasks: " + this.tasksTotal
-                + "#spouts: " + this.spouts.size()
+                + "#executors: " + this.executorsTotal + "\n"
+                + "#tasks: " + this.tasksTotal + "\n"
+                + "#spouts: " + this.spouts.size() + "\n"
                 + "#bolts: " + this.bolts.size();
     } 
 }

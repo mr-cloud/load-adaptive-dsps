@@ -3,6 +3,7 @@ package org.mlgb.dsps.monitor;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Date;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.client.ClientProtocolException;
@@ -198,7 +199,8 @@ public class Jones implements NightsWatcher, Callback{
                             .append(Consts.COLLECTION_METRIC_MACHINES_TOTAL, machines.getMachinesTotal())
                             .append(Consts.COLLECTION_METRIC_MACHINES_RUNNING, machines.getMachinesRunning())
                             .append(Consts.COLLECTION_METRIC_MESSAGES_TOTAL, this.jones.messagesStats.getMessagesTotal())
-                            .append(Consts.COLLECTION_METRIC_MESSAGES_RUNNING, this.jones.messagesStats.getMessagesConsumed());
+                            .append(Consts.COLLECTION_METRIC_MESSAGES_RUNNING, this.jones.messagesStats.getMessagesConsumed())
+                            .append(Consts.COLLECTION_DATE, new Date());
                     this.metricsDAO.saveMetrics(doc); 
                 }
                 try {
@@ -229,7 +231,7 @@ public class Jones implements NightsWatcher, Callback{
 
     public void updateConsumerOffset(String jsonStr) {
         ConsumerZnodeVO vo = (ConsumerZnodeVO)new Gson().fromJson(jsonStr, ConsumerZnodeVO.class);
-        this.messagesStats.setMessagesConsumed(vo.getOffset() - 1);
+        this.messagesStats.setMessagesConsumed(vo.getOffset());
     }
 
     private <T> Object getParams(URI uri, Class<T> cls){
@@ -325,13 +327,6 @@ public class Jones implements NightsWatcher, Callback{
     }
 
     public void hibernate() {
-        if (this.httpclient != null) {
-            try {
-                this.httpclient.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
         if (this.walker != null) {
             this.walker.interrupt();            
         }  
@@ -340,6 +335,18 @@ public class Jones implements NightsWatcher, Callback{
         }
         if (this.collector != null) {
             this.collector.interrupt();
+        }
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e1) {
+            e1.printStackTrace();
+        }
+        if (this.httpclient != null) {
+            try {
+                this.httpclient.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 

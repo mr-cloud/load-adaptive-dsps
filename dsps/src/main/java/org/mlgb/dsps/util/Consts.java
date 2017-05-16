@@ -51,8 +51,9 @@ public class Consts {
     public static final String COLLECTION_METRIC_MACHINES_TOTAL = "machinesTotal";
     public static final String COLLECTION_METRIC_MACHINES_RUNNING = "machinesRunning";
     public static final String COLLECTION_METRIC_MESSAGES_TOTAL = "messagesTotal";
-    public static final String COLLECTION_METRIC_MESSAGES_RUNNING = "messagesRunnning";
+    public static final String COLLECTION_METRIC_MESSAGES_RUNNING = "messagesConsumed";
     public static final long METRICS_HEARTBEAT_MILLIS = 10000;
+    public static final String COLLECTION_DATE = "date";
     
     
 }
