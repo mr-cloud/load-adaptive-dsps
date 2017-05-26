@@ -1,6 +1,7 @@
 package org.mlgb.dsps.util.vo;
 
-public class BoltVO {
+
+public class BoltVO implements Comparable<BoltVO>{
     private String boltId;
     private String capacity;  // feature
     private String processLatency;
@@ -84,6 +85,11 @@ public class BoltVO {
     }
     public void setEmitted(long emitted) {
         this.emitted = emitted;
+    }
+    @Override
+    public int compareTo(BoltVO o) {
+        // DESC order.
+        return Double.compare(Double.parseDouble(o.capacity), Double.parseDouble(this.capacity));
     }
     
 }

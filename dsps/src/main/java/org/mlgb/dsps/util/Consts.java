@@ -55,5 +55,13 @@ public class Consts {
     public static final long METRICS_HEARTBEAT_MILLIS = 10000;
     public static final String COLLECTION_DATE = "date";
     
+    // Rebalance options.
+    public static final String REBALANCE_PARAMETER_id = "id";
+    public static final String REBALANCE_PARAMETER_wait_time = "wait-time";
+    public static final String REBALANCE_PARAMETER_options = "rebalanceOptions";
+    public static final String REBALANCE_PARAMETER_numWorkers = "numWorkers";
+    public static final String REBALANCE_PARAMETER_executors = "executors";
+    public static final int REBALANCE_DEFAUT_WAIT_TIME_SECONDS = 10;
+    
     
 }
