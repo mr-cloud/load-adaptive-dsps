@@ -16,6 +16,8 @@ public class Consts {
     public static final String ZAC_HOST = "192.168.56.1";
     public static final int ZAC_PORT = 5000;
     public static final String ZAC_PATH_MACHINES_STATS = "/machines-stats";
+    public static final String ZAC_PATH_SCALE_OUT = "/scale-out";
+    public static final String ZAC_PATH_SCALE_IN = "/scale-in";
 
     public static final String ZOOKEEPER_HOST_PORT = "localhost:2181";
     public static final int ZOOKEEPER_TIMEOUT = 5000;
@@ -62,6 +64,8 @@ public class Consts {
     public static final String REBALANCE_PARAMETER_numWorkers = "numWorkers";
     public static final String REBALANCE_PARAMETER_executors = "executors";
     public static final int REBALANCE_DEFAUT_WAIT_TIME_SECONDS = 10;
+    public static final String REBALANCE_PARAMETER_bolt_id = "boltId";
+    public static final String REBALANCE_PARAMETER_numExecutors = "numExecutors";
     
     
 }

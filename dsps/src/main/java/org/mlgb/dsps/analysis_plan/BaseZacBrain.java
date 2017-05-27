@@ -2,7 +2,7 @@ package org.mlgb.dsps.analysis_plan;
 
 import java.util.Properties;
 
-import org.mlgb.dsps.executor.Scaler;
+import org.mlgb.dsps.executor.ScalerFactory;
 import org.mlgb.dsps.executor.ScalingExecutor;
 import org.mlgb.dsps.monitor.Jones;
 import org.mlgb.dsps.monitor.JonesFactory;
@@ -35,7 +35,7 @@ public class BaseZacBrain {
     public BaseZacBrain(){
         this.jones = JonesFactory.createJones();
         this.profiler = new OnlineProfiler(jones);
-        this.scaler = new Scaler();
+        this.scaler = ScalerFactory.createScaler();
         this.brainStorming();
     }
     
@@ -73,7 +73,8 @@ public class BaseZacBrain {
                         // Scale up in thread level.
                         prop.put(Consts.REBALANCE_PARAMETER_id, this.profiler.topologyId);
                         prop.put(Consts.REBALANCE_PARAMETER_wait_time, Consts.REBALANCE_DEFAUT_WAIT_TIME_SECONDS);
-                        prop.put(maxBolt.getBoltId(), executors + 1);
+                        prop.put(Consts.REBALANCE_PARAMETER_bolt_id, maxBolt.getBoltId());
+                        prop.put(Consts.REBALANCE_PARAMETER_numExecutors, executors + 1);
                         this.scaler.reblanceCluster(prop);
                     }
                     else if (this.profiler.slotsFree > 0) {
