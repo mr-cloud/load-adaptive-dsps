@@ -29,14 +29,14 @@ public class BaseZacBrain {
      * 
      */
     public static void main(String[] args){
-        new BaseZacBrain();
+        BaseZacBrain zac = new BaseZacBrain();
         // Note: Some additional configuration.
+        zac.brainStorming();
     }
     public BaseZacBrain(){
         this.jones = JonesFactory.createJones();
         this.profiler = new OnlineProfiler(jones);
         this.scaler = ScalerFactory.createScaler();
-        this.brainStorming();
     }
     
     /**
@@ -85,6 +85,7 @@ public class BaseZacBrain {
                         this.scaler.reblanceCluster(prop);
                     }
                     else if (this.profiler.curMac.getMachinesRunning() < this.profiler.curMac.getMachinesTotal()) {
+                        // Scale out in machine level.
                         this.scaler.scaleOut();
                         this.scaler.reblanceCluster(null);
                         try {

@@ -26,9 +26,9 @@ public class OnlineProfiler {
     
     //-----------------Optimization Parameters
     /**
-     * History steps.
+     * History steps. 10 times scale action adopted at least.
      */
-    public int BATCH_SIZE = 10;  
+    public int BATCH_SIZE = 100;  
     
     /**
      * Thresholds for scaling when beyond the workers' acceptable capacity.
