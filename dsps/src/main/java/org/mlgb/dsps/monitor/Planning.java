@@ -11,6 +11,8 @@ import java.util.List;
 public class Planning {
     public long messagesPerInterval;
     public List<Integer> delayMilis;
+    public int type;
+    
     public Planning() {
         super();
         this.messagesPerInterval = 10;
@@ -20,5 +22,8 @@ public class Planning {
         this.delayMilis.add(1000);
     }
     
-    
+    public Planning (int type) {
+        this();
+        this.type = type;
+    }
 }

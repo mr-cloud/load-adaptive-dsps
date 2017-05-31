@@ -56,6 +56,9 @@ public class Consts {
     public static final String COLLECTION_METRIC_MESSAGES_RUNNING = "messagesConsumed";
     public static final long METRICS_HEARTBEAT_MILLIS = 10000;
     public static final String COLLECTION_DATE = "date";
+    public static final String COLLECTION_STRATEGY = "strategy";
+    public static final String COLLECTION_PLANNING = "plan";
+
     
     // Rebalance options.
     public static final String REBALANCE_PARAMETER_id = "id";
@@ -66,6 +69,11 @@ public class Consts {
     public static final int REBALANCE_DEFAUT_WAIT_TIME_SECONDS = 10;
     public static final String REBALANCE_PARAMETER_bolt_id = "boltId";
     public static final String REBALANCE_PARAMETER_numExecutors = "numExecutors";
+    
+    // Strategies
+    public static final String STRATEGY_FIXED_THRESHOLD = "FIXED";
+    public static final String STRATEGY_THRESHOLD_BASED_OPT = "OPTIMIZED";
+    public static final String STRATEGY_REINFORCEMENT_LEARNING = "RL";
     
     
 }

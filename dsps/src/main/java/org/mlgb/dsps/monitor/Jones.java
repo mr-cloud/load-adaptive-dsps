@@ -47,7 +47,8 @@ public class Jones implements NightsWatcher, Callback{
     private Thread walker;
     private OffsetExecutor guard;
     private Thread collector;
-
+    public String strategy = Consts.STRATEGY_FIXED_THRESHOLD;
+    public int planType;
 
     public Jones() {
         super();
@@ -200,7 +201,9 @@ public class Jones implements NightsWatcher, Callback{
                             .append(Consts.COLLECTION_METRIC_MACHINES_RUNNING, machines.getMachinesRunning())
                             .append(Consts.COLLECTION_METRIC_MESSAGES_TOTAL, this.jones.messagesStats.getMessagesTotal())
                             .append(Consts.COLLECTION_METRIC_MESSAGES_RUNNING, this.jones.messagesStats.getMessagesConsumed())
-                            .append(Consts.COLLECTION_DATE, new Date());
+                            .append(Consts.COLLECTION_DATE, new Date())
+                            .append(Consts.COLLECTION_STRATEGY, strategy)
+                            .append(Consts.COLLECTION_PLANNING, planType);
                     this.metricsDAO.saveMetrics(doc); 
                 }
                 try {
@@ -214,6 +217,7 @@ public class Jones implements NightsWatcher, Callback{
 
     }
     public void uprising(String topicName, Planning plan){
+        this.planType = plan.type;
         walker = new Thread(new WhiteWalkerExecutor(new WhiteWalkerProducer(topicName), plan, this));
         walker.start();
         try {

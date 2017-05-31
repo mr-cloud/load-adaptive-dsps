@@ -90,7 +90,7 @@
 					</descriptorRefs>
 					<archive>
 						<manifest>
-							<mainClass>org.mlgb.dsps.monitor.JonesTest</mainClass>
+							<mainClass>org.mlgb.dsps.app.ZacBounce</mainClass>
 						</manifest>
 					</archive>
 				</configuration>

@@ -6,6 +6,7 @@ import org.mlgb.dsps.executor.ScalerFactory;
 import org.mlgb.dsps.executor.ScalingExecutor;
 import org.mlgb.dsps.monitor.Jones;
 import org.mlgb.dsps.monitor.JonesFactory;
+import org.mlgb.dsps.monitor.Planning;
 import org.mlgb.dsps.util.Consts;
 import org.mlgb.dsps.util.vo.BoltVO;
 
@@ -23,16 +24,22 @@ public class BaseZacBrain {
     private Jones jones;
     private OnlineProfiler profiler;
     private ScalingExecutor scaler;
+    private String strategy;
+    private Planning plan;
     
-    /**
-     * Zac startup entry.
-     * 
-     */
-    public static void main(String[] args){
-        BaseZacBrain zac = new BaseZacBrain();
-        // Note: Some additional configuration.
-        zac.brainStorming();
+    public String getStrategy() {
+        return strategy;
     }
+    public void setStrategy(String strategy) {
+        this.strategy = strategy;
+    }
+    public Planning getPlan() {
+        return plan;
+    }
+    public void setPlan(Planning plan) {
+        this.plan = plan;
+    }
+
     public BaseZacBrain(){
         this.jones = JonesFactory.createJones();
         this.profiler = new OnlineProfiler(jones);
@@ -45,6 +52,13 @@ public class BaseZacBrain {
      * Note: Override this method when inheriting this base class. 
      */
     public void brainStorming(){
+        if (this.strategy == null || this.plan == null) {
+            LoggerX.error("Neither Strategy nor plan can be null!");
+            System.exit(1);
+        }
+        this.jones.strategy = this.strategy;
+        this.jones.uprising(Consts.TOPIC, this.plan);
+        
         while (true) {  // Run forever except an error occurs.
             if (this.profiler.curCap == null 
                     || this.profiler.curCap.size() == 0) {
