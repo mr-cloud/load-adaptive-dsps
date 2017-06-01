@@ -69,7 +69,7 @@ public class JonesTest {
 
     @Test
     public void testGetMessagesStats() {
-        this.jones.uprising(Consts.TOPIC, new Planning());
+        this.jones.uprising(Consts.TOPIC, new Planning(), Consts.STRATEGY_FIXED_THRESHOLD);
         try {
             Thread.sleep(100*1000);
             MessagesStatsVO vo = this.jones.getMessagesStats();

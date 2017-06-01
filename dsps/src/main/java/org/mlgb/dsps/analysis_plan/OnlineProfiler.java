@@ -156,7 +156,7 @@ public class OnlineProfiler {
                     }
                 }
                 try {
-                    Thread.sleep(freezeT);
+                    Thread.sleep(freezeT * 1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

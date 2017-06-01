@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The design blueprint for producing messages. 
+ * The design blueprint for producing messages.
+ * Default input rate is 1/(10ms) = 10^2 msg/s. 
  * @author Leo
  *
  */
@@ -17,9 +18,7 @@ public class Planning {
         super();
         this.messagesPerInterval = 10;
         this.delayMilis = new ArrayList<>();
-        this.delayMilis.add(100);
-        this.delayMilis.add(300);
-        this.delayMilis.add(1000);
+        this.delayMilis.add(10);
     }
     
     public Planning (int type) {

@@ -47,8 +47,8 @@ public class Jones implements NightsWatcher, Callback{
     private Thread walker;
     private OffsetExecutor guard;
     private Thread collector;
-    public String strategy = Consts.STRATEGY_FIXED_THRESHOLD;
-    public int planType;
+    private String strategy;
+    private int planType;
 
     public Jones() {
         super();
@@ -216,7 +216,8 @@ public class Jones implements NightsWatcher, Callback{
         }
 
     }
-    public void uprising(String topicName, Planning plan){
+    public void uprising(String topicName, Planning plan, String strategy){
+        this.strategy = strategy;
         this.planType = plan.type;
         walker = new Thread(new WhiteWalkerExecutor(new WhiteWalkerProducer(topicName), plan, this));
         walker.start();
