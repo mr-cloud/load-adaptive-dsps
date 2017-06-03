@@ -14,7 +14,17 @@ import org.mlgb.dsps.util.vo.TopologiesSummaryVO;
 import org.mlgb.dsps.util.vo.TopologyProfileVO;
 
 import uni.akilis.helper.LoggerX;
-
+/**
+ * Testing Env: 
+ *  Storm cluster 
+ *  Storm UI
+ *  MongoDB
+ *  Topology: ToyApp
+ *  vbmanager
+ *  
+ * @author Leo
+ *
+ */
 public class JonesTest {
     public static void main(String[] args) {
         JUnitCore.main("org.mlgb.dsps.monitor.JonesTest");
@@ -51,7 +61,7 @@ public class JonesTest {
         TopologiesSummaryVO vo = this.jones.getTopologiesSummary();
         assertNotNull(vo);
         if (vo.getTopologies().size() == 0) {
-            LoggerX.println("There is no running topogy.");
+            fail("There is no running topogy.");
         }
         else {
             TopologyProfileVO topo = this.jones.getTopologyProfile(vo.getTopologies().get(0).getId());

@@ -107,6 +107,7 @@ public class OnlineProfiler {
     public String topologyId;
     
     private Jones jones;
+    private Thread profiling;
     
     /**
      * Fixed thresholds when analyzing and planning.  
@@ -114,59 +115,66 @@ public class OnlineProfiler {
      */
     public OnlineProfiler(Jones jones){
         this.jones = jones; 
-        profilerOnline();
     }
     
-    private void profilerOnline() {
+    public void profilerOnline() {
         // Start a thread to keep the profile updated.
-        new Thread(new Runnable(){
+        this.profiling = new Thread(new Runnable(){
 
             @Override
             public void run() {
-                // update capacities and  <input rate, throughput>.
-                ClusterSummaryVO cluster = jones.getClusterSummary();
-                slotsTotal = cluster.getSlotsTotal();
-                slotsFree = cluster.getSlotsFree();
-                TopologiesSummaryVO topoSum = jones.getTopologiesSummary();
-                if (topoSum.getTopologies().size() == 0) {
-                    LoggerX.error(TAG, "There is no running topogy.");
-                }
-                else{
-                    TopologyProfileVO topoProf = jones.getTopologyProfile(topoSum.getTopologies().get(0).getId());
-                    workersTotal = topoProf.getWorkersTotal();
-                    topologyId = topoProf.getId();
-                    List<BoltVO> newCap = (ArrayList<BoltVO>) topoProf.getBolts();
-                    Collections.sort(newCap);
-                    curCap = newCap;
-                    capacities.offer((ArrayList<BoltVO>) newCap);
-                    if (capacities.size() > BATCH_SIZE) {
-                        capacities.poll();
+                while(!Thread.interrupted()){
+                    // update capacities and  <input rate, throughput>.
+                    ClusterSummaryVO cluster = jones.getClusterSummary();
+                    slotsTotal = cluster.getSlotsTotal();
+                    slotsFree = cluster.getSlotsFree();
+                    TopologiesSummaryVO topoSum = jones.getTopologiesSummary();
+                    if (topoSum.getTopologies().size() == 0) {
+                        LoggerX.error(TAG, "There is no running topogy.");
                     }
-                    MessagesStatsVO newMsg = jones.getMessagesStats();
-                    sla.offer(newMsg);
-                    curMsg = newMsg;
-                    if (sla.size() > BATCH_SIZE) {
-                        sla.poll();
+                    else{
+                        TopologyProfileVO topoProf = jones.getTopologyProfile(topoSum.getTopologies().get(0).getId());
+                        workersTotal = topoProf.getWorkersTotal();
+                        topologyId = topoProf.getId();
+                        List<BoltVO> newCap = (ArrayList<BoltVO>) topoProf.getBolts();
+                        Collections.sort(newCap);
+                        curCap = newCap;
+                        capacities.offer((ArrayList<BoltVO>) newCap);
+                        if (capacities.size() > BATCH_SIZE) {
+                            capacities.poll();
+                        }
+                        MessagesStatsVO newMsg = jones.getMessagesStats();
+                        sla.offer(newMsg);
+                        curMsg = newMsg;
+                        if (sla.size() > BATCH_SIZE) {
+                            sla.poll();
+                        }
+                        MachinesStatsVO newMac = jones.getMachinesStats(); 
+                        machines.offer(newMac);
+                        curMac = newMac;
+                        if (machines.size() > BATCH_SIZE) {
+                            machines.poll();
+                        }
                     }
-                    MachinesStatsVO newMac = jones.getMachinesStats(); 
-                    machines.offer(newMac);
-                    curMac = newMac;
-                    if (machines.size() > BATCH_SIZE) {
-                        machines.poll();
+                    try {
+                        Thread.sleep(freezeT * 1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
-                }
-                try {
-                    Thread.sleep(freezeT * 1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
                 }
             }
-            
-        }).start();
+        });
+        this.profiling.start();
     }
 
     // TODO
     public OnlineProfiler(Jones jones, Optimizer opt){
         
+    }
+
+    public void snapshot() {
+        if (this.profiling != null) {
+            this.profiling.interrupt();     
+        }
     }
 }

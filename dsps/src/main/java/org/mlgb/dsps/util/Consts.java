@@ -74,6 +74,7 @@ public class Consts {
     public static final String STRATEGY_FIXED_THRESHOLD = "FIXED";
     public static final String STRATEGY_THRESHOLD_BASED_OPT = "OPTIMIZED";
     public static final String STRATEGY_REINFORCEMENT_LEARNING = "RL";
+    public static final int MINIMUM_NUM_WORKERS = 2;
     
     
 }

@@ -21,20 +21,16 @@ import org.mlgb.dsps.util.vo.RebalanceSuccessResultVO;
 import org.mlgb.dsps.util.vo.ScalingSuccessResultVO;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 
 import uni.akilis.helper.LoggerX;
 
 public class Scaler implements ScalingExecutor{
     public static final String TAG = Scaler.class.getName();  
-    private CloseableHttpClient httpclient;
-
-    
-    public Scaler() {
-        this.httpclient = HttpClients.createDefault();
-    }
+    private CloseableHttpClient httpclient = HttpClients.createDefault();
 
     @Override
-    public void scaleOut() {
+    public boolean scaleOut() {
         try {
             URI uri = new URIBuilder()
                     .setScheme(Consts.ZAC_PROTOCAL)
@@ -46,11 +42,18 @@ public class Scaler implements ScalingExecutor{
             LoggerX.println(rst.toString());
         } catch (URISyntaxException e) {
             e.printStackTrace();
+            return false;
+        } catch (JsonSyntaxException e) {
+            LoggerX.error(TAG, "Scale out failed!");
+            return false;
+        } catch (NullPointerException e) {
+            return false;
         }
+        return true;
     }
 
     @Override
-    public void scaleIn() {
+    public boolean scaleIn() {
         try {
             URI uri = new URIBuilder()
                     .setScheme(Consts.ZAC_PROTOCAL)
@@ -62,31 +65,37 @@ public class Scaler implements ScalingExecutor{
             LoggerX.println(rst.toString());
         } catch (URISyntaxException e) {
             e.printStackTrace();
+            return false;
+        } catch (JsonSyntaxException e) {
+            LoggerX.error(TAG, "Scale in failed!");
+            return false;
+        } catch (NullPointerException e) {
+            return false;
         }
-        
+        return true;
     }
 
     @Override
-    public void reblanceCluster(Properties props) {
+    public boolean rebalanceCluster(Properties prop) {
         StringBuilder sb = new StringBuilder();
         sb.append("{");
-        if (props != null) {
+        if (prop != null) {
             sb.append("\"")
                 .append(Consts.REBALANCE_PARAMETER_options)
                 .append("\":{");
-            if (props.containsKey(Consts.REBALANCE_PARAMETER_numWorkers)) {
+            if (prop.containsKey(Consts.REBALANCE_PARAMETER_numWorkers)) {
                 sb.append("\"")
                     .append(Consts.REBALANCE_PARAMETER_numWorkers)
                     .append("\":")
-                    .append(props.get(Consts.REBALANCE_PARAMETER_numWorkers));
+                    .append(prop.get(Consts.REBALANCE_PARAMETER_numWorkers));
             }
             else {
                 sb.append("\"")
                     .append(Consts.REBALANCE_PARAMETER_executors)
                     .append("\":{\"")
-                    .append(props.getProperty(Consts.REBALANCE_PARAMETER_bolt_id))
+                    .append(prop.getProperty(Consts.REBALANCE_PARAMETER_bolt_id))
                     .append("\":")
-                    .append(props.get(Consts.REBALANCE_PARAMETER_numExecutors))
+                    .append(prop.get(Consts.REBALANCE_PARAMETER_numExecutors))
                     .append("}");
             }
             sb.append("}");
@@ -95,9 +104,9 @@ public class Scaler implements ScalingExecutor{
         LoggerX.println("Rebalance options: " + sb.toString());
         // Post method to rebalance cluster.
         String path = Consts.TOPOLOGY_PROFILE_PREFIX 
-                        + props.getProperty(Consts.REBALANCE_PARAMETER_id)
+                        + prop.getProperty(Consts.REBALANCE_PARAMETER_id)
                         + "/rebalance"
-                        + props.get(Consts.REBALANCE_PARAMETER_wait_time);
+                        + prop.get(Consts.REBALANCE_PARAMETER_wait_time);
         
         try {
             URI uri = new URIBuilder()
@@ -110,10 +119,17 @@ public class Scaler implements ScalingExecutor{
             LoggerX.println(rst.toString());
         } catch (URISyntaxException e) {
             e.printStackTrace();
+            return false;
+        } catch (JsonSyntaxException e) {
+            LoggerX.error(TAG, "Rebalance failed!");
+            return false;
+        } catch (NullPointerException e) {
+            return false;
         }
+        return true;
     }
 
-    private <T> Object getParams(URI uri, Class<T> cls){
+    private <T> Object getParams(URI uri, Class<T> cls) throws JsonSyntaxException{
         try {
             HttpGet httpget = new HttpGet(uri);
             CloseableHttpResponse httpresponse = this.httpclient.execute(httpget);
@@ -132,7 +148,7 @@ public class Scaler implements ScalingExecutor{
         return null;
     }
     
-    private <T> Object postParams(URI uri, Class<T> cls, String jsonContent){
+    private <T> Object postParams(URI uri, Class<T> cls, String jsonContent) throws JsonSyntaxException{
         StringEntity requestEntity = new StringEntity(
                 jsonContent,
                 ContentType.APPLICATION_JSON);
@@ -153,5 +169,27 @@ public class Scaler implements ScalingExecutor{
             e.printStackTrace();
         }
         return null;
+    }
+
+    @Override
+    public boolean scaleOut(Properties prop) {
+        if (!this.scaleOut()) {
+            return false;
+        }
+        if (!this.rebalanceCluster(prop)) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public boolean scaleIn(Properties prop) {
+        if (!this.scaleIn()) {
+            return false;
+        }
+        if (!this.rebalanceCluster(prop)) {
+            return false;
+        }
+        return true;        
     }
 }
