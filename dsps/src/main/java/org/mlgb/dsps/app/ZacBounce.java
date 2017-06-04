@@ -1,5 +1,9 @@
 package org.mlgb.dsps.app;
 
+import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import org.mlgb.dsps.analysis_plan.BaseZacBrain;
 import org.mlgb.dsps.monitor.Planning;
 import org.mlgb.dsps.monitor.PlanningFactory;
@@ -12,9 +16,16 @@ import uni.akilis.helper.LoggerX;
  * @author Leo
  *
  */
-public class ZacBounce {
+public class ZacBounce extends TimerTask{
     public static final String TAG = ZacBounce.class.getName();
+    private  BaseZacBrain zac;
+    private Timer timer;
     
+    public ZacBounce(BaseZacBrain zac, Timer timer) {
+        this.zac = zac;
+        this.timer = timer;
+    }
+
     public static void main(String[] args){
         BaseZacBrain zac = null;
         // Parse strategy.
@@ -76,7 +87,23 @@ public class ZacBounce {
             }
         }
         
-        // Start up Zac
+        // Start Zac
         zac.brainStorming();
+
+        // Set timer to schedule experiments.
+        // Daemon thread.
+        Timer timer = new Timer(true);
+        ZacBounce dancer = new ZacBounce(zac, timer);
+        timer.schedule(dancer, Consts.TEST_RUNNING_TIME, Consts.TEST_RUNNING_TIME);        
+   }
+
+    @Override
+    public void run() {
+        LoggerX.println(TAG, "Timer task started at:" + new Date());
+        // Stop Zac.
+        zac.exit();        
+        // Cancel experiment or continue to next experiment.
+        timer.cancel();
+        LoggerX.println(TAG, "Timer task finished at:" + new Date());
     }
 }

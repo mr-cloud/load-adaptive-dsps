@@ -76,6 +76,7 @@ public class BaseZacBrain{
         this.jones.uprising(Consts.TOPIC, this.plan, this.strategy);
         this.profiler.profilerOnline();
         this.brain = new Thread(new Brain());
+        this.brain.start();
     }
     
     /**

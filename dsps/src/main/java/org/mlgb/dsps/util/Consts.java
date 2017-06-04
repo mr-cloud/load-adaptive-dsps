@@ -76,5 +76,17 @@ public class Consts {
     public static final String STRATEGY_REINFORCEMENT_LEARNING = "RL";
     public static final int MINIMUM_NUM_WORKERS = 2;
     
+    // Experiments set up.
+    /**
+     * Experiment running time.
+     */
+    public static final long TEST_RUNNING_TIME = 10 * 60 * 1000;
+    public static final long RUNNING_TIME = 3 * 60 * 60 * 1000;
+    /**
+     * Shift the input rate at interval.
+     */
+    public static final long GEAR_SHIFT_INTERVAL = RUNNING_TIME / (3 * 6 * 2);  // per 5 minutes.
+
+    
     
 }

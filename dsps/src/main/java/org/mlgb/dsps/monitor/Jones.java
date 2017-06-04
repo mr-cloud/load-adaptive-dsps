@@ -156,10 +156,12 @@ public class Jones implements NightsWatcher, Callback{
             int planLen = this.plan.delayMilis.size();
             int planIdx = 0;
             int delay = this.plan.delayMilis.get(planIdx);
-            long cnt = 0;
+            long startTime = System.currentTimeMillis();
             while(!Thread.interrupted()){
-                if (cnt >= this.plan.messagesPerInterval) {
-                    cnt = 0;
+                long checkTime = System.currentTimeMillis();
+                // Change the input rate.
+                if (checkTime - startTime >= Consts.GEAR_SHIFT_INTERVAL) {
+                    startTime = checkTime;
                     planIdx += 1;
                     if (planIdx >= planLen) {
                         planIdx = 0;
@@ -172,7 +174,6 @@ public class Jones implements NightsWatcher, Callback{
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                cnt++;
             }
             this.msgProducer.closeProducer();
         }
