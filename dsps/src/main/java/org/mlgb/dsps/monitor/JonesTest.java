@@ -19,6 +19,7 @@ import uni.akilis.helper.LoggerX;
  *  Storm cluster 
  *  Storm UI
  *  MongoDB
+ *  Kafka
  *  Topology: ToyApp
  *  vbmanager
  *  

@@ -9,17 +9,21 @@ import java.util.Properties;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.JUnitCore;
 import org.mlgb.dsps.monitor.Jones;
 import org.mlgb.dsps.util.Consts;
 import org.mlgb.dsps.util.vo.BoltVO;
 import org.mlgb.dsps.util.vo.TopologiesSummaryVO;
 import org.mlgb.dsps.util.vo.TopologyProfileVO;
 
+import uni.akilis.helper.LoggerX;
+
 /**
  * Testing Env: 
  *  Storm cluster 
  *  Storm UI
  *  MongoDB
+ *  Kafka
  *  Topology: ToyApp
  *  vbmanager
  *  
@@ -28,6 +32,9 @@ import org.mlgb.dsps.util.vo.TopologyProfileVO;
  */
 public class ScalerTest {
 
+    public static void main(String[] args) {
+        JUnitCore.main("org.mlgb.dsps.executor.ScalerTest");
+    }
     private Jones jones;
     private Scaler scaler;
     
@@ -53,11 +60,13 @@ public class ScalerTest {
     @After
     public void tearDown() throws Exception {
         this.jones.hibernate();
+        Thread.sleep(10000);
     }
 
 
     @Test
     public void testScaleOut() {
+        LoggerX.println("\nTest method: " + "testScaleOut" + "\n");
         beforeA = this.jones.getMachinesStats().getMachinesRunning();
         assertTrue(this.scaler.scaleOut());
         afterA = this.jones.getMachinesStats().getMachinesRunning();
@@ -66,9 +75,15 @@ public class ScalerTest {
 
     @Test
     public void testScaleIn() {
+        LoggerX.println("\nTest method: " + "testScaleIn" + "\n");
+
         // Scale out first.
         this.testScaleOut();
-        
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         beforeA = this.jones.getMachinesStats().getMachinesRunning();
         assertTrue(this.scaler.scaleIn());
         afterA = this.jones.getMachinesStats().getMachinesRunning();
@@ -77,6 +92,7 @@ public class ScalerTest {
 
     @Test
     public void testRebalanceCluster() {
+        LoggerX.println("\nTest method: " + "testRebalanceCluster" + "\n");
         // Scale up testing.
         
         Properties prop = new Properties();
@@ -105,12 +121,14 @@ public class ScalerTest {
         prop.put(Consts.REBALANCE_PARAMETER_numExecutors, bolts.get(0).getExecutors() + 1);
         beforeA = bolts.get(0).getExecutors();
         assertTrue(this.scaler.rebalanceCluster(prop));
-        afterA = this.jones.getTopologyProfile(vo.getTopologies().get(0).getId()).getWorkersTotal();
+        afterA = this.jones.getTopologyProfile(vo.getTopologies().get(0).getId()).getBolts().get(0).getExecutors();
         assertTrue(afterA == beforeA + 1);
     }
 
     @Test
     public void testScaleOutProperties() {
+        LoggerX.println("\nTest method: " + "testScaleOutProperties" + "\n");
+
         Properties prop = new Properties();
         TopologiesSummaryVO vo = this.jones.getTopologiesSummary();
         assertNotNull(vo);
@@ -132,9 +150,15 @@ public class ScalerTest {
 
     @Test
     public void testScaleInProperties() {
+        LoggerX.println("\nTest method: " + "testScaleInProperties" + "\n");
+
         // Scale out first.
         this.testScaleOutProperties();
-        
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         Properties prop = new Properties();
         TopologiesSummaryVO vo = this.jones.getTopologiesSummary();
         assertNotNull(vo);
@@ -150,8 +174,8 @@ public class ScalerTest {
         assertTrue(this.scaler.scaleIn(prop));
         this.afterA = this.jones.getMachinesStats().getMachinesRunning();
         this.afterB = this.jones.getTopologyProfile(vo.getTopologies().get(0).getId()).getWorkersTotal();
-        assertTrue(afterA == beforeA + 1);
-        assertTrue(afterB == beforeB + 1);
+        assertTrue(afterA == beforeA - 1);
+        assertTrue(afterB == beforeB - 1);
     }
 
 }

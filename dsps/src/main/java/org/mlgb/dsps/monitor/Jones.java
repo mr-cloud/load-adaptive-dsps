@@ -242,12 +242,13 @@ public class Jones implements NightsWatcher, Callback{
 
     private <T> Object getParams(URI uri, Class<T> cls){
         try {
+            LoggerX.println(TAG, "Request URI: " + uri.toString());
             HttpGet httpget = new HttpGet(uri);
             CloseableHttpResponse httpresponse = this.httpclient.execute(httpget);
             HttpEntity entity = httpresponse.getEntity();
             if (entity != null) {
                 String jsonStr = EntityUtils.toString(entity);
-                LoggerX.println(TAG, "json response:\n" + jsonStr);
+//                LoggerX.println(TAG, "json response:\n" + jsonStr);
                 httpresponse.close();
                 return new Gson().fromJson(jsonStr, cls);
             }

@@ -105,7 +105,7 @@ public class Scaler implements ScalingExecutor{
         // Post method to rebalance cluster.
         String path = Consts.TOPOLOGY_PROFILE_PREFIX 
                         + prop.getProperty(Consts.REBALANCE_PARAMETER_id)
-                        + "/rebalance"
+                        + "/rebalance/"
                         + prop.get(Consts.REBALANCE_PARAMETER_wait_time);
         
         try {
@@ -126,17 +126,23 @@ public class Scaler implements ScalingExecutor{
         } catch (NullPointerException e) {
             return false;
         }
+        try {
+            Thread.sleep(1000 * ((Integer)prop.get(Consts.REBALANCE_PARAMETER_wait_time) + 3));
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         return true;
     }
 
     private <T> Object getParams(URI uri, Class<T> cls) throws JsonSyntaxException{
         try {
+            LoggerX.println(TAG, "Request URI: " + uri.toString());
             HttpGet httpget = new HttpGet(uri);
             CloseableHttpResponse httpresponse = this.httpclient.execute(httpget);
             HttpEntity entity = httpresponse.getEntity();
             if (entity != null) {
                 String jsonStr = EntityUtils.toString(entity);
-                LoggerX.println(TAG, "json response:\n" + jsonStr);
+//                LoggerX.println(TAG, "json response:\n" + jsonStr);
                 httpresponse.close();
                 return new Gson().fromJson(jsonStr, cls);
             }
@@ -153,13 +159,14 @@ public class Scaler implements ScalingExecutor{
                 jsonContent,
                 ContentType.APPLICATION_JSON);
         try {
+            LoggerX.println(TAG, "Request URI: " + uri.toString());
             HttpPost httppost = new HttpPost(uri);
             httppost.setEntity(requestEntity);
             CloseableHttpResponse httpresponse = this.httpclient.execute(httppost);
             HttpEntity entity = httpresponse.getEntity();
             if (entity != null) {
                 String jsonStr = EntityUtils.toString(entity);
-                LoggerX.println(TAG, "json response:\n" + jsonStr);
+//                LoggerX.println(TAG, "json response:\n" + jsonStr);
                 httpresponse.close();
                 return new Gson().fromJson(jsonStr, cls);
             }
