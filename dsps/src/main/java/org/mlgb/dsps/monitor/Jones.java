@@ -235,6 +235,12 @@ public class Jones implements NightsWatcher, Callback{
         collector.start();
     }
 
+    public void uprisingProducer(String topicName, Planning plan){
+        this.planType = plan.type;
+        walker = new Thread(new WhiteWalkerExecutor(new WhiteWalkerProducer(topicName), plan, this));
+        walker.start();        
+    }
+    
     public void updateConsumerOffset(String jsonStr) {
         ConsumerZnodeVO vo = (ConsumerZnodeVO)new Gson().fromJson(jsonStr, ConsumerZnodeVO.class);
         this.messagesStats.setMessagesConsumed(vo.getOffset());
