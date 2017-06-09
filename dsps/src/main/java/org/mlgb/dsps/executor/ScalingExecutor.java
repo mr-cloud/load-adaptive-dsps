@@ -38,4 +38,9 @@ public interface ScalingExecutor {
      *    
      */
     boolean rebalanceCluster(Properties prop);
+    
+    /**
+     * Shut down executor.
+     */
+    void shutdown();
 }

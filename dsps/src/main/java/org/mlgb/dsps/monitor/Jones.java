@@ -94,13 +94,12 @@ public class Jones implements NightsWatcher, Callback{
                     }
                     data = new String(b,
                             "UTF-8");
-                    LoggerX.println(data);
+                    LoggerX.debug(data);
                     this.metricCallback.updateConsumerOffset(data);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             } 
-
         }
 
         public  Stat znode_exists(String path) throws 
@@ -172,9 +171,10 @@ public class Jones implements NightsWatcher, Callback{
                 try {
                     Thread.sleep(delay);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    break;
                 }
             }
+            LoggerX.println(TAG, "Exit WhiteWalkerExecutor.");
             this.msgProducer.closeProducer();
         }
 
@@ -210,10 +210,10 @@ public class Jones implements NightsWatcher, Callback{
                 try {
                     Thread.sleep(Consts.METRICS_HEARTBEAT_MILLIS);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    break;
                 }
             }
-            LoggerX.println(TAG, "Stop collecting metrics.");
+            LoggerX.println(TAG, "Exit StatsCollector.");
         }
 
     }

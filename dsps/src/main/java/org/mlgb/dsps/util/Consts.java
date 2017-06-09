@@ -66,7 +66,7 @@ public class Consts {
     public static final String REBALANCE_PARAMETER_options = "rebalanceOptions";
     public static final String REBALANCE_PARAMETER_numWorkers = "numWorkers";
     public static final String REBALANCE_PARAMETER_executors = "executors";
-    public static final int REBALANCE_DEFAUT_WAIT_TIME_SECONDS = 10;
+    public static final int REBALANCE_DEFAUT_WAIT_TIME_SECONDS = 2 * 60;
     public static final String REBALANCE_PARAMETER_bolt_id = "boltId";
     public static final String REBALANCE_PARAMETER_numExecutors = "numExecutors";
     
@@ -80,12 +80,21 @@ public class Consts {
     /**
      * Experiment running time.
      */
-    public static final long TEST_RUNNING_TIME = 10 * 60 * 1000;
-    public static final long RUNNING_TIME = 3 * 60 * 60 * 1000;
+    public static final String RUNNING_TIME_KEY = "RUNNING_TIME";
+    public static final long TEST_RUNNING_TIME = 15 * 60 * 1000;
+    public static final long DEPLOYMENT_RUNNING_TIME = 3 * 60 * 60 * 1000;
     /**
      * Shift the input rate at interval.
      */
-    public static final long GEAR_SHIFT_INTERVAL = RUNNING_TIME / (3 * 6 * 2);  // per 5 minutes.
+    public static final long GEAR_SHIFT_INTERVAL = 5 * 60 * 1000;  // per 5 minutes.
+    /**
+     * Zac configuration file.
+     */
+    public static final String ZAC_CONFIG = "zac.properties";
+    /**
+     * LoggerX config.
+     */
+    public static final String LOGGERX_LEVEL_KEY = "LOGGERX_LEVEL";
 
     
     

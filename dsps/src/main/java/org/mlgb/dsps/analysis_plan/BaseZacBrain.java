@@ -31,7 +31,9 @@ public class BaseZacBrain{
     private boolean FINED_SCALING_TOGGLE = false;
     private boolean tuning = false;
     private Thread brain;
-    
+
+    public static final String TAG = BaseZacBrain.class.getName();
+
     public boolean isTuning() {
         return tuning;
     }
@@ -78,20 +80,35 @@ public class BaseZacBrain{
         this.brain = new Thread(new Brain());
         this.brain.start();
     }
-    
+
     /**
      * Exit for performance evaluation. 
      * Usually set a timer to call this method.
      */
     public void exit(){
-        this.brain.interrupt();
-        this.profiler.snapshot();
-        this.jones.hibernate();
+        try {
+            this.brain.interrupt();
+            Thread.sleep(1000);
+            this.profiler.snapshot();
+            Thread.sleep(1000);
+            this.jones.hibernate();
+            Thread.sleep(1000);
+            this.scaler.shutdown();
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
     }
-    
+
     class Brain implements Runnable {
         @Override
         public void run() {
+            try {
+                Thread.sleep(Consts.REBALANCE_DEFAUT_WAIT_TIME_SECONDS * 1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             while (!Thread.interrupted()){
                 if (!tuning) {  // if tuning toggle is open, no strategy will be applied.
                     if (profiler.curCap == null 
@@ -100,6 +117,10 @@ public class BaseZacBrain{
                     }
                     else {
                         // Check the capacity of the most urgent component.
+                        LoggerX.debug(TAG, "\nCapacities:");
+                        for (BoltVO ele: profiler.curCap) {
+                            LoggerX.debug(ele.getCapacity());
+                        }
                         BoltVO maxBolt = profiler.curCap.get(0);
                         double maxCap = Double.parseDouble(maxBolt.getCapacity());
                         if (maxCap < profiler.cLow) {
@@ -125,46 +146,67 @@ public class BaseZacBrain{
                                 prop.put(Consts.REBALANCE_PARAMETER_bolt_id, maxBolt.getBoltId());
                                 prop.put(Consts.REBALANCE_PARAMETER_numExecutors, executors + 1);
                                 scaler.rebalanceCluster(prop);
+                                try {
+                                    profiler.isUpdatable = false;
+                                    Thread.sleep(Consts.REBALANCE_DEFAUT_WAIT_TIME_SECONDS * 1000);
+                                    profiler.isUpdatable = true;
+                                } catch (InterruptedException e) {
+                                    break;
+                                }
                             }
                             else if (FINED_SCALING_TOGGLE && profiler.slotsFree > 0) {
                                 // Scale up in process level.
                                 prop.put(Consts.REBALANCE_PARAMETER_numWorkers, profiler.workersTotal + 1);
                                 scaler.rebalanceCluster(prop);
+                                try {
+                                    profiler.isUpdatable = false;
+                                    Thread.sleep(Consts.REBALANCE_DEFAUT_WAIT_TIME_SECONDS * 1000);
+                                    profiler.isUpdatable = true;
+                                } catch (InterruptedException e) {
+                                    break;
+                                }
                             }
                             else if (profiler.curMac.getMachinesRunning() < profiler.curMac.getMachinesTotal()) {
                                 // Scale out in machine level.
                                 prop.put(Consts.REBALANCE_PARAMETER_numWorkers, profiler.workersTotal + 1);
                                 scaler.scaleOut(prop);
                                 try {
-                                    Thread.sleep(profiler.freezeT * 1000);
+                                    profiler.isUpdatable = false;
+                                    Thread.sleep(Consts.REBALANCE_DEFAUT_WAIT_TIME_SECONDS * 1000);
+                                    profiler.isUpdatable = true;
                                 } catch (InterruptedException e) {
-                                    e.printStackTrace();
+                                    break;
                                 }
                             }
                             else{
                                 LoggerX.println("No more resource to scale out!");
                             }
+                            profiler.violationH = 0;
                         }
-                        else if (profiler.violationL < profiler.vLow) {
+                        else if (profiler.violationL > profiler.vLow) {
                             // Scale in.
                             prop.put(Consts.REBALANCE_PARAMETER_numWorkers, Math.max(profiler.workersTotal - 1, Consts.MINIMUM_NUM_WORKERS));
                             scaler.scaleIn(prop);
                             try {
-                                Thread.sleep(profiler.freezeT * 1000);
+                                profiler.isUpdatable = false;
+                                Thread.sleep(Consts.REBALANCE_DEFAUT_WAIT_TIME_SECONDS * 1000);
+                                profiler.isUpdatable = true;
                             } catch (InterruptedException e) {
-                                e.printStackTrace();
+                                break;
                             }
+                            profiler.violationL = 0;
                         }
                         else
                             ;
                     }   
                 }
                 try {
-                    Thread.sleep(Consts.REBALANCE_DEFAUT_WAIT_TIME_SECONDS * 1000);
+                    Thread.sleep(profiler.freezeT * 1000);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    break;
                 }
             }
+            LoggerX.println(TAG, "Exit BaseZacBrain.");
         }
     }
 }

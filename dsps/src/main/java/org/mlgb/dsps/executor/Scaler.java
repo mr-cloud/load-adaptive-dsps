@@ -126,11 +126,6 @@ public class Scaler implements ScalingExecutor{
         } catch (NullPointerException e) {
             return false;
         }
-        try {
-            Thread.sleep(1000 * ((Integer)prop.get(Consts.REBALANCE_PARAMETER_wait_time) + 3));
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         return true;
     }
 
@@ -198,5 +193,16 @@ public class Scaler implements ScalingExecutor{
             return false;
         }
         return true;        
+    }
+
+    @Override
+    public void shutdown() {
+        if (this.httpclient != null) {
+            try {
+                this.httpclient.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

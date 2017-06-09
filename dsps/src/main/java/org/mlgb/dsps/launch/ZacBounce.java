@@ -1,6 +1,7 @@
-package org.mlgb.dsps.app;
+package org.mlgb.dsps.launch;
 
 import java.util.Date;
+import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -8,11 +9,22 @@ import org.mlgb.dsps.analysis_plan.BaseZacBrain;
 import org.mlgb.dsps.monitor.Planning;
 import org.mlgb.dsps.monitor.PlanningFactory;
 import org.mlgb.dsps.util.Consts;
+import org.mlgb.dsps.util.Utils;
 
 import uni.akilis.helper.LoggerX;
 
 /**
- * Launch Zac.  
+ * Launch Zac.
+ * 
+ * Deployment Env: 
+ *  Storm cluster, 
+ *  Storm UI,
+ *  MongoDB,
+ *  Kafka server,
+ *  Topic: Thrones,
+ *  vbmanager,
+ *  Topology: SALE ON ZAC.
+ *  
  * @author Leo
  *
  */
@@ -20,6 +32,7 @@ public class ZacBounce extends TimerTask{
     public static final String TAG = ZacBounce.class.getName();
     private  BaseZacBrain zac;
     private Timer timer;
+    private static boolean isAlive = true;
     
     public ZacBounce(BaseZacBrain zac, Timer timer) {
         this.zac = zac;
@@ -27,6 +40,21 @@ public class ZacBounce extends TimerTask{
     }
 
     public static void main(String[] args){
+        LoggerX.println(TAG, "\n\nHello Zac!\n\n");
+        // Load Configuration file.
+        Properties prop = Utils.loadConfigProperties(Consts.ZAC_CONFIG);
+        long runningTime = 0;
+        switch (Integer.parseInt(prop.getProperty(Consts.RUNNING_TIME_KEY))){
+            case 0: runningTime = Consts.TEST_RUNNING_TIME;break;
+            case 1: runningTime = Consts.DEPLOYMENT_RUNNING_TIME;break;
+            default: {
+                LoggerX.error(TAG, "Not supported running time setting!");
+                System.exit(1);
+            }
+        }
+        int logLevel = Integer.parseInt(prop.getProperty(Consts.LOGGERX_LEVEL_KEY));
+        LoggerX.LEVEL = logLevel;
+        
         BaseZacBrain zac = null;
         // Parse strategy.
         if (args.length > 0 && "tuning".equalsIgnoreCase(args[0])) {
@@ -87,14 +115,24 @@ public class ZacBounce extends TimerTask{
             }
         }
         
-        // Start Zac
-        zac.brainStorming();
-
         // Set timer to schedule experiments.
         // Daemon thread.
         Timer timer = new Timer(true);
         ZacBounce dancer = new ZacBounce(zac, timer);
-        timer.schedule(dancer, Consts.TEST_RUNNING_TIME, Consts.TEST_RUNNING_TIME);        
+        // Start Zac.
+        zac.brainStorming();
+        // Start timer.
+        timer.schedule(dancer, runningTime, runningTime);
+        
+        while (isAlive) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            LoggerX.println(new Date().toString(), "Let's bounce...");
+        }
+        LoggerX.println(TAG, "\n\nGoodbye Zac!\n\n");
    }
 
     @Override
@@ -104,6 +142,8 @@ public class ZacBounce extends TimerTask{
         zac.exit();        
         // Cancel experiment or continue to next experiment.
         timer.cancel();
+        // Terminate the main thread.
+        isAlive = false;
         LoggerX.println(TAG, "Timer task finished at:" + new Date());
     }
 }

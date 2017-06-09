@@ -8,6 +8,13 @@ public class LoggerX {
 	private static final boolean LOG_ON = true;
 	private static boolean LOG_STATUS = LOG_ON;
 	
+	public static int ERROR = 1;
+	public static int WARNING = 2;
+	public static int DEBUG = 3;
+	public static int INFO = 4;
+    
+	public static int LEVEL = WARNING;
+	
 	/**
 	 * 输出日志到控制台
 	 * @param msg 想要输出的日志信息
@@ -65,5 +72,23 @@ public class LoggerX {
 		print("\n");
 	}
 	
-
+	/**
+	 * Debug 
+	 * @param tag
+	 * @param msg
+	 */
+	public static void debug(String tag, Object msg){
+	    if (LEVEL >= DEBUG) {
+	        println(tag, msg);
+	    }
+	}
+	/**
+	 * Debug
+	 * @param msg
+	 */
+	public static void debug(Object msg){
+	    if (LEVEL >= DEBUG) {
+	        println(msg);
+	    }
+	}
 }
