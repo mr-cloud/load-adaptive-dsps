@@ -79,14 +79,15 @@ public class Consts {
     // Experiments set up.
     /**
      * Experiment running time.
+     * In millis.
      */
     public static final String RUNNING_TIME_KEY = "RUNNING_TIME";
-    public static final long TEST_RUNNING_TIME = 30 * 60 * 1000;
-    public static final long DEPLOYMENT_RUNNING_TIME = 3 * 60 * 60 * 1000;
+    public static final long TEST_RUNNING_TIME = 30 * 60 * 1000;  
+    public static final long DEPLOYMENT_RUNNING_TIME = 2 * 60 * 60 * 1000;
     /**
      * Shift the input rate at interval.
      */
-    public static final long GEAR_SHIFT_INTERVAL = 10 * 60 * 1000;  // per 5 minutes.
+    public static final long GEAR_SHIFT_INTERVAL = 10 * 60 * 1000;  // per 10 minutes.
     /**
      * Zac configuration file.
      */
@@ -95,6 +96,10 @@ public class Consts {
      * LoggerX config.
      */
     public static final String LOGGERX_LEVEL_KEY = "LOGGERX_LEVEL";
+    /**
+     * The accuaray for comparison between doubles.
+     */
+    public static final double ERROR_EPSILON = 1.0E-4;
 
     
     

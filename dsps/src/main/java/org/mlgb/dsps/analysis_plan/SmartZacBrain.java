@@ -1,0 +1,270 @@
+package org.mlgb.dsps.analysis_plan;
+
+import java.util.Random;
+
+import org.mlgb.dsps.util.Consts;
+
+import uni.akilis.helper.LoggerX;
+
+public class SmartZacBrain extends BaseZacBrain implements Optimizer{
+    private boolean STOP_CRITERION = false;
+    private Random random = new Random();
+    private Thread optimer;
+    private double[][] doms;
+    private double[] gras;
+    private int batch;
+
+    public static final String TAG = SmartZacBrain.class.getName();
+    
+    
+    public SmartZacBrain() {
+        this.setStrategy(Consts.STRATEGY_THRESHOLD_BASED_OPT);
+        // Only consider the cHigh and cLow.
+        doms = new double[2][2];
+        gras = new double[2];
+        doms[0][0] = 0.75;
+        doms[0][1] = 0.9;
+        gras[0] = 0.01;
+        doms[1][0] = 0.0;
+        doms[1][1] = 0.5;
+        gras[1] = 0.01;
+        batch = this.profiler.BATCH_SIZE;
+    }
+
+    
+    @Override
+    public void brainStorming() {
+        super.brainStorming();
+        this.optimer = new Thread(new Opt());
+        this.optimer.start();
+    }
+
+
+    @Override
+    public void exit() {
+        this.optimer.interrupt();
+        super.exit();
+    }
+
+
+    class Opt implements Runnable {
+        @Override
+        public void run() {
+            try {
+                Thread.sleep(Consts.REBALANCE_DEFAUT_WAIT_TIME_SECONDS * 1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            while (!Thread.interrupted()){
+                try {
+                    optimizing();
+                    Thread.sleep(profiler.freezeT * 1000);
+                } catch (InterruptedException e) {
+                    break;
+                }       
+            }
+            LoggerX.println(TAG, "Exit Optimizer.");
+        }
+    }
+    @Override
+    public void optimizing() {
+        if (this.profiler.capacities.size() < batch ) {
+            return;
+        }
+        double[] opted = rrs(doms, gras);
+        LoggerX.debug("\n\nOptimized thresholds:");
+        for (double param: opted) {
+            LoggerX.debug(param);
+        }
+        LoggerX.debug("\n\n");
+        synchronized(this.profiler){
+            this.profiler.cHigh = opted[0];
+            this.profiler.cLow = opted[1];            
+        }
+    }
+    
+    /**
+     * Cost function with given thresholds.
+     * @param params
+     * @return
+     */
+    public synchronized double cost(double[] params){
+        int[] hp = new int[batch];
+        int priceVM = 0;
+        double cHigh = params[0];
+        double cLow = params[1];
+        for (int i = 0; i < batch; i++) {
+            int h = this.profiler.machines.poll().getMachinesRunning();
+            double cap = Double.parseDouble(this.profiler.capacities.poll().get(0).getCapacity());
+            if (i == 0) {
+                hp[0] = h;
+            }
+            else {
+                if (cap * h / hp[i-1] > cHigh) {
+                    hp[i] = hp[i-1] + 1;
+                }
+                else if (cap * h / hp[i-1] < cLow) {
+                    hp[i] = hp[i-1] - 1;
+                }
+                else{
+                    ;
+                }
+            }
+            priceVM += hp[i];
+        }        
+        return priceVM;
+    }
+    
+
+    /**
+     * Recursive Random Search. 
+     * Ref. A Recursive Random Search Algorithm For Large-Scale
+Network Parameter Configuration
+     * @param doms parameters space.
+     * @param gras granularity for each space.  
+     * @return best parameters.
+     */
+    public double[] rrs(double[][] doms, double gras[]){
+        double p = 0.99, r = 0.1, q = 0.99, v = 0.8, c = 0.5, st = 0.001;
+        return rrs(doms, gras, p, r, q, v, c, st);
+    }
+
+    /**
+     * Recursive Random Search. 
+     * Ref. A Recursive Random Search Algorithm For Large-Scale
+Network Parameter Configuration
+     * @param doms parameters space.
+     * @param gras granularity for each space.  
+     * @param p confidence for convergence in exploration.
+     * @param r percentile in exploration.
+     * @param q confidence for convergence in exploitation.
+     * @param v percentile in  exploitation.
+     * @param c percentile decay rate in exploitation.
+     * @param st resolution of the optimization.
+     * @return best parameters.
+     */
+    public double[] rrs(double[][] doms, double[] gras, double p, double r, double q, double v, double c, double st) {
+        /*
+         * Initialization
+         */
+        int n = (int) Math.round(Math.log(1 - p)/Math.log(1 - r));
+        int l = (int) Math.round(Math.log(1 - q)/Math.log(1 - v));
+        double[][] samples = randomSample(doms, gras, n);
+        int minIdx = -1;
+        double minCost = Double.MAX_VALUE;
+        for (int i = 0; i < samples.length; i++) {
+            double curCost = cost(samples[i]);
+            if (curCost < minCost) {
+                minIdx = i;
+                minCost = curCost;
+            }
+        }
+        double[] x0 = samples[minIdx];
+        double yr = minCost;
+        long numF = 1;
+        int i = 0;
+        int exploit_flag = 1;
+        double[] x_opt = x0;
+        double y_opt = yr;
+        
+        /*
+         * Exploration
+         */
+        double yr_next = Double.MAX_VALUE;
+        while (STOP_CRITERION) {
+            if (exploit_flag == 1) {
+                /*
+                 * Exploitation
+                 */
+                int j = 0;
+                double fc = cost(x0);
+                double[] xl = x0;
+                double rou = r;
+                double[][] doms_neighbor = findSampleSpace(doms, gras, rou, xl);
+                while (rou > st) {
+                    double[] xp = randomSample(doms_neighbor, gras);
+                    double y = cost(xp);
+                    if (y < fc) {
+                        xl = xp;
+                        fc = y;
+                    }
+                    else{
+                        j++;
+                    }
+                    if (j == l) {
+                        rou *= c;
+                        j = 0;
+                    }
+                }
+                exploit_flag = 0;
+                x_opt = fc < y_opt? xl: x_opt;
+            }
+            x0 = randomSample(doms, gras);
+            double y = cost(x0);
+            yr_next = Math.min(y, yr_next);
+            if (y < yr) {
+                exploit_flag = 1;
+            }
+            if (i == n) {
+                yr = (yr * numF + yr_next)/(numF+1);
+                numF++;
+                i = 0;
+            }
+            i++;
+        }
+        STOP_CRITERION = true;
+        return x_opt;
+    }
+
+    /**
+     * Compute neighbor sample space for current parameters given  ρ.
+     * @param doms
+     * @param gras
+     * @param rou
+     * @param xl
+     * @return 
+     */
+    private double[][] findSampleSpace(double[][] doms, double[] gras, double rou, double[] xl) {
+        double[][] neighbor_space = new double[doms.length][2];
+        double factor = Math.pow(rou, 1.0/doms.length);
+        for (int i = 0; i < doms.length; i++) {
+            double bound = factor * (doms[i][1] - doms[i][0]);
+            neighbor_space[i][0] = xl[i] - bound;
+            neighbor_space[i][1] = xl[i] + bound;
+        }
+        return neighbor_space;
+    }
+
+    /**
+     * Sample one point uniformly randomly.
+     * @param doms
+     * @param gras
+     * @return
+     */
+    private double[] randomSample(double[][] doms, double[] gras) {
+        double[] sample = new double[doms.length];
+        for (int i = 0; i < sample.length; i++) {
+            int span = (int)((doms[i][1] - doms[i][0])/gras[i]);
+            span = span < 0? 0: span;
+            random.setSeed(i);
+            int offset = random.nextInt(span + 1);
+            sample[i] = doms[i][0] + gras[i] * offset; 
+        }
+        return sample;
+    }
+
+    /**
+     * Sample n points uniformly randomly.
+     * @param doms
+     * @param gras
+     * @param n
+     * @return
+     */
+    private double[][] randomSample(double[][] doms, double[] gras, int n) {
+        double[][] samples = new double[n][doms.length];
+        for (int i = 0; i < n; i++) {
+            samples[i] = randomSample(doms, gras);
+        }
+        return samples;
+    }
+}

@@ -23,14 +23,14 @@ import uni.akilis.helper.LoggerX;
  *
  */
 public class BaseZacBrain{
-    private Jones jones;
-    private OnlineProfiler profiler;
-    private ScalingExecutor scaler;
-    private String strategy = Consts.STRATEGY_FIXED_THRESHOLD;
-    private Planning plan = PlanningFactory.createPlanning();
-    private boolean FINED_SCALING_TOGGLE = false;
-    private boolean tuning = false;
-    private Thread brain;
+    public Jones jones;
+    public OnlineProfiler profiler;
+    public ScalingExecutor scaler;
+    public String strategy = Consts.STRATEGY_FIXED_THRESHOLD;
+    public Planning plan = PlanningFactory.createPlanning();
+    public boolean FINED_SCALING_TOGGLE = false;
+    public boolean tuning = false;
+    public Thread brain;
 
     public static final String TAG = BaseZacBrain.class.getName();
 

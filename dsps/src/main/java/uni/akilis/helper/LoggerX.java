@@ -8,11 +8,18 @@ public class LoggerX {
 	private static final boolean LOG_ON = true;
 	private static boolean LOG_STATUS = LOG_ON;
 	
-	public static int ERROR = 1;
-	public static int WARNING = 2;
-	public static int DEBUG = 3;
-	public static int INFO = 4;
+	public static final int ERROR = 1;
+	public static final int WARNING = 2;
+	public static final int DEBUG = 3;
+	public static final int INFO = 4;
     
+	/**
+	 * The higher, the finer.
+	 * ERROR = 1;
+	 * WARNING = 2;
+	 * DEBUG = 3;
+	 * INFO = 4;
+	 */
 	public static int LEVEL = WARNING;
 	
 	/**

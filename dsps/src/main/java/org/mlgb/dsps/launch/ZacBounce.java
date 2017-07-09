@@ -21,9 +21,9 @@ import uni.akilis.helper.LoggerX;
  *  Storm UI,
  *  MongoDB,
  *  Kafka server,
- *  Topic: Thrones,
+ *  Topic: thrones,
  *  vbmanager,
- *  Topology: SALE ON ZAC.
+ *  Topology: SaleTopologyRunner.
  *  
  * @author Leo
  *
@@ -124,6 +124,7 @@ public class ZacBounce extends TimerTask{
         // Start timer.
         timer.schedule(dancer, runningTime, runningTime);
         
+        LoggerX.println("This experiment will last for " + runningTime/(1000*60) + " minutes.");
         while (isAlive) {
             try {
                 Thread.sleep(1000);
