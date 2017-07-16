@@ -6,6 +6,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import org.mlgb.dsps.analysis_plan.BaseZacBrain;
+import org.mlgb.dsps.analysis_plan.SmartZacBrain;
 import org.mlgb.dsps.monitor.Planning;
 import org.mlgb.dsps.monitor.PlanningFactory;
 import org.mlgb.dsps.util.Consts;
@@ -68,7 +69,8 @@ public class ZacBounce extends TimerTask{
                 zac.setStrategy(Consts.STRATEGY_FIXED_THRESHOLD);
                 break;
             case Consts.STRATEGY_THRESHOLD_BASED_OPT:
-                // TODO
+                zac = new SmartZacBrain();
+                zac.setStrategy(Consts.STRATEGY_THRESHOLD_BASED_OPT);
                 break;
             case Consts.STRATEGY_REINFORCEMENT_LEARNING:
                 // TODO

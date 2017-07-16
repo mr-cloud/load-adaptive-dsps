@@ -8,6 +8,7 @@ import uni.akilis.helper.LoggerX;
 
 public class SmartZacBrain extends BaseZacBrain implements Optimizer{
     private boolean STOP_CRITERION = false;
+    private long SEARCHING_TIME = 1000 * 60 * 1;
     private Random random = new Random();
     private Thread optimer;
     private double[][] doms;
@@ -18,6 +19,7 @@ public class SmartZacBrain extends BaseZacBrain implements Optimizer{
     
     
     public SmartZacBrain() {
+        super();
         this.setStrategy(Consts.STRATEGY_THRESHOLD_BASED_OPT);
         // Only consider the cHigh and cLow.
         doms = new double[2][2];
@@ -63,6 +65,9 @@ public class SmartZacBrain extends BaseZacBrain implements Optimizer{
                     break;
                 }       
             }
+            LoggerX.println(TAG, "\n\nOptimized thresholds:\n"
+                    + "cHigh: " + profiler.cHigh + "\n"
+                    + "cLow: " + profiler.cLow + "\n\n");
             LoggerX.println(TAG, "Exit Optimizer.");
         }
     }
@@ -171,6 +176,8 @@ Network Parameter Configuration
          * Exploration
          */
         double yr_next = Double.MAX_VALUE;
+        // Set timer for searching.
+        long startTime = System.currentTimeMillis();
         while (STOP_CRITERION) {
             if (exploit_flag == 1) {
                 /*
@@ -184,6 +191,7 @@ Network Parameter Configuration
                 while (rou > st) {
                     double[] xp = randomSample(doms_neighbor, gras);
                     double y = cost(xp);
+                    // Realign
                     if (y < fc) {
                         xl = xp;
                         fc = y;
@@ -191,13 +199,20 @@ Network Parameter Configuration
                     else{
                         j++;
                     }
+                    // Shrink
                     if (j == l) {
                         rou *= c;
                         j = 0;
                     }
-                }
+                    // Time out
+                    if (System.currentTimeMillis() - startTime > SEARCHING_TIME) {
+                        break;
+                    }                }
                 exploit_flag = 0;
-                x_opt = fc < y_opt? xl: x_opt;
+                if (fc < y_opt) {
+                    x_opt = xl;
+                    y_opt = fc;
+                }
             }
             x0 = randomSample(doms, gras);
             double y = cost(x0);
@@ -209,8 +224,12 @@ Network Parameter Configuration
                 yr = (yr * numF + yr_next)/(numF+1);
                 numF++;
                 i = 0;
+                yr_next = Double.MAX_VALUE;
             }
             i++;
+            if (System.currentTimeMillis() - startTime > SEARCHING_TIME) {
+                STOP_CRITERION = false;
+            }
         }
         STOP_CRITERION = true;
         return x_opt;
