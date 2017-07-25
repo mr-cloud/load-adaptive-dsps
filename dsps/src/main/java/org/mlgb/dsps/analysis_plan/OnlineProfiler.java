@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Queue;
 
 import org.mlgb.dsps.monitor.Jones;
-import org.mlgb.dsps.util.Consts;
 import org.mlgb.dsps.util.vo.BoltVO;
 import org.mlgb.dsps.util.vo.ClusterSummaryVO;
 import org.mlgb.dsps.util.vo.MachinesStatsVO;
@@ -146,12 +145,6 @@ public class OnlineProfiler {
                             topologyId = topoProf.getId();
                             List<BoltVO> newCap = topoProf.getBolts();
                             Collections.sort(newCap);
-                            BoltVO maxBolt = newCap.get(0);
-                            double maxCap = Double.parseDouble(maxBolt.getCapacity());
-                            if (Math.abs(maxCap) < Consts.ERROR_EPSILON) {
-                                // Ignore this sample.
-                                continue;
-                            }
                             curCap = newCap;
                             capacities.offer((ArrayList<BoltVO>) newCap);
                             if (capacities.size() > BATCH_SIZE) {

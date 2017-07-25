@@ -8,8 +8,8 @@ import java.util.Properties;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.runner.JUnitCore;
 import org.mlgb.dsps.monitor.Jones;
 import org.mlgb.dsps.util.Consts;
 import org.mlgb.dsps.util.vo.BoltVO;
@@ -30,27 +30,8 @@ import uni.akilis.helper.LoggerX;
  *  @author Leo
  *
  */
-public class ScalerTest {
+public class ScalerOutTest {
 
-    public static void main(String[] args) {
-        if (args.length == 0) {
-            JUnitCore.main("org.mlgb.dsps.executor.ScalerTest");            
-        }
-        else {
-            if ("out".equalsIgnoreCase(args[0])) {
-                JUnitCore.main("org.mlgb.dsps.executor.ScalerOutTest");                            
-            }
-            else if ("in".equalsIgnoreCase(args[0])) {
-                JUnitCore.main("org.mlgb.dsps.executor.ScalerInTest");            
-            }
-            else if ("rebalance".equalsIgnoreCase(args[0])) {
-                JUnitCore.main("org.mlgb.dsps.executor.ScalerRebalanceTest");                            
-            }
-            else {
-                LoggerX.error("Cannot find the test case!");
-            }
-        }
-    }
     private Jones jones;
     private Scaler scaler;
     
@@ -79,7 +60,6 @@ public class ScalerTest {
         Thread.sleep(10000);
     }
 
-
     @Test
     public void testScaleOut() {
         LoggerX.println("\nTest method: " + "testScaleOut" + "\n");
@@ -90,6 +70,7 @@ public class ScalerTest {
         assertTrue(afterA == beforeA + 1);
     }
 
+    @Ignore
     @Test
     public void testScaleIn() {
         LoggerX.println("\nTest method: " + "testScaleIn" + "\n");
@@ -108,6 +89,7 @@ public class ScalerTest {
         assertTrue(afterA == beforeA - 1);
     }
 
+    @Ignore
     @Test
     public void testRebalanceCluster() {
         LoggerX.println("\nTest method: " + "testRebalanceCluster" + "\n");
@@ -184,6 +166,7 @@ public class ScalerTest {
         assertTrue(afterB == beforeB + 1);
     }
     
+    @Ignore
     @Test
     public void testScaleInProperties() {
         LoggerX.println("\nTest method: " + "testScaleInProperties" + "\n");

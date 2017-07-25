@@ -76,6 +76,11 @@ public class BaseZacBrain{
             System.exit(1);
         }
         this.jones.uprising(Consts.TOPIC, this.plan, this.strategy);
+        try {
+            Thread.sleep(Consts.BRAIN_WAKE_UP_TIME * 1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         this.profiler.profilerOnline();
         this.brain = new Thread(new Brain());
         this.brain.start();
@@ -104,11 +109,6 @@ public class BaseZacBrain{
     class Brain implements Runnable {
         @Override
         public void run() {
-            try {
-                Thread.sleep(Consts.REBALANCE_DEFAUT_WAIT_TIME_SECONDS * 1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
             while (!Thread.interrupted()){
                 if (!tuning) {  // if tuning toggle is open, no strategy will be applied.
                     if (profiler.curCap == null 
@@ -123,6 +123,11 @@ public class BaseZacBrain{
                         }
                         BoltVO maxBolt = profiler.curCap.get(0);
                         double maxCap = Double.parseDouble(maxBolt.getCapacity());
+                        // Filter invalid samples.
+                        /*                        if (Math.abs(maxCap) < Consts.ERROR_EPSILON) {
+                            // Ignore this sample.
+                            continue;
+                        }*/
                         if (maxCap < profiler.cLow) {
                             profiler.violationL += 1;
                             profiler.violationH = 0;
@@ -146,40 +151,27 @@ public class BaseZacBrain{
                                 prop.put(Consts.REBALANCE_PARAMETER_bolt_id, maxBolt.getBoltId());
                                 prop.put(Consts.REBALANCE_PARAMETER_numExecutors, executors + 1);
                                 scaler.rebalanceCluster(prop);
-                                try {
-                                    profiler.isUpdatable = false;
-                                    Thread.sleep(Consts.REBALANCE_DEFAUT_WAIT_TIME_SECONDS * 1000);
-                                    profiler.isUpdatable = true;
-                                } catch (InterruptedException e) {
-                                    break;
-                                }
+
                             }
                             else if (FINED_SCALING_TOGGLE && profiler.slotsFree > 0) {
                                 // Scale up in process level.
                                 prop.put(Consts.REBALANCE_PARAMETER_numWorkers, profiler.workersTotal + 1);
                                 scaler.rebalanceCluster(prop);
-                                try {
-                                    profiler.isUpdatable = false;
-                                    Thread.sleep(Consts.REBALANCE_DEFAUT_WAIT_TIME_SECONDS * 1000);
-                                    profiler.isUpdatable = true;
-                                } catch (InterruptedException e) {
-                                    break;
-                                }
                             }
                             else if (profiler.curMac.getMachinesRunning() < profiler.curMac.getMachinesTotal()) {
                                 // Scale out in machine level.
                                 prop.put(Consts.REBALANCE_PARAMETER_numWorkers, profiler.workersTotal + 1);
                                 scaler.scaleOut(prop);
-                                try {
-                                    profiler.isUpdatable = false;
-                                    Thread.sleep(Consts.REBALANCE_DEFAUT_WAIT_TIME_SECONDS * 1000);
-                                    profiler.isUpdatable = true;
-                                } catch (InterruptedException e) {
-                                    break;
-                                }
                             }
                             else{
                                 LoggerX.println("No more resource to scale out!");
+                            }
+                            try {
+                                profiler.isUpdatable = false;
+                                Thread.sleep(Consts.BRAIN_WAKE_UP_TIME * 1000);
+                                profiler.isUpdatable = true;
+                            } catch (InterruptedException e) {
+                                break;
                             }
                             profiler.violationH = 0;
                         }
@@ -189,7 +181,7 @@ public class BaseZacBrain{
                             scaler.scaleIn(prop);
                             try {
                                 profiler.isUpdatable = false;
-                                Thread.sleep(Consts.REBALANCE_DEFAUT_WAIT_TIME_SECONDS * 1000);
+                                Thread.sleep(Consts.BRAIN_WAKE_UP_TIME * 1000);
                                 profiler.isUpdatable = true;
                             } catch (InterruptedException e) {
                                 break;

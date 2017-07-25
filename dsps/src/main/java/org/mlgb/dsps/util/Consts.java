@@ -19,7 +19,7 @@ public class Consts {
     public static final String ZAC_PATH_SCALE_OUT = "/scale-out";
     public static final String ZAC_PATH_SCALE_IN = "/scale-in";
 
-    public static final String ZOOKEEPER_HOST_PORT = "localhost:2181";
+    public static final String ZOOKEEPER_HOST_PORT = "namenode:2181";
     public static final int ZOOKEEPER_TIMEOUT = 5000;
 
     public static final String KAFKA_BROKERS = "localhost:9092";    
@@ -66,7 +66,7 @@ public class Consts {
     public static final String REBALANCE_PARAMETER_options = "rebalanceOptions";
     public static final String REBALANCE_PARAMETER_numWorkers = "numWorkers";
     public static final String REBALANCE_PARAMETER_executors = "executors";
-    public static final int REBALANCE_DEFAUT_WAIT_TIME_SECONDS = 3 * 60;
+    public static final int REBALANCE_DEFAUT_WAIT_TIME_SECONDS = 30;
     public static final String REBALANCE_PARAMETER_bolt_id = "boltId";
     public static final String REBALANCE_PARAMETER_numExecutors = "numExecutors";
     
@@ -83,11 +83,11 @@ public class Consts {
      */
     public static final String RUNNING_TIME_KEY = "RUNNING_TIME";
     public static final long TEST_RUNNING_TIME = 30 * 60 * 1000;  
-    public static final long DEPLOYMENT_RUNNING_TIME = 2 * 60 * 60 * 1000;
+    public static final long DEPLOYMENT_RUNNING_TIME = 3 * 60 * 60 * 1000;
     /**
      * Shift the input rate at interval.
      */
-    public static final long GEAR_SHIFT_INTERVAL = 10 * 60 * 1000;  // per 10 minutes.
+    public static final long GEAR_SHIFT_INTERVAL = 30 * 60 * 1000;  // per 20 minutes.
     /**
      * Zac configuration file.
      */
@@ -100,6 +100,10 @@ public class Consts {
      * The accuaray for comparison between doubles.
      */
     public static final double ERROR_EPSILON = 1.0E-4;
+    /**
+     * The delay time for strategy launching. 
+     */
+    public static final int BRAIN_WAKE_UP_TIME = 3 * 60;
 
     
     

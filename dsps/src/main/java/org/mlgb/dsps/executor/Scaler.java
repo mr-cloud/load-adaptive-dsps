@@ -39,7 +39,10 @@ public class Scaler implements ScalingExecutor{
                     .setPath(Consts.ZAC_PATH_SCALE_OUT)
                     .build();
             ScalingSuccessResultVO rst = (ScalingSuccessResultVO) getParams(uri, ScalingSuccessResultVO.class);
-            LoggerX.println(rst.toString());
+            LoggerX.println(TAG, "Results:\n" + rst.toString());
+            if (!"success".equalsIgnoreCase(rst.getRst())) {
+                return false;
+            }
         } catch (URISyntaxException e) {
             e.printStackTrace();
             return false;
@@ -62,7 +65,10 @@ public class Scaler implements ScalingExecutor{
                     .setPath(Consts.ZAC_PATH_SCALE_IN)
                     .build();
             ScalingSuccessResultVO rst = (ScalingSuccessResultVO) getParams(uri, ScalingSuccessResultVO.class);
-            LoggerX.println(rst.toString());
+            LoggerX.println(TAG, "Results:\n" + rst.toString());
+            if (!"success".equalsIgnoreCase(rst.getRst())) {
+                return false;
+            }
         } catch (URISyntaxException e) {
             e.printStackTrace();
             return false;
@@ -101,7 +107,7 @@ public class Scaler implements ScalingExecutor{
             sb.append("}");
         }
         sb.append("}");
-        LoggerX.println("Rebalance options: " + sb.toString());
+        LoggerX.println(TAG, "Rebalance options: " + sb.toString());
         // Post method to rebalance cluster.
         String path = Consts.TOPOLOGY_PROFILE_PREFIX 
                         + prop.getProperty(Consts.REBALANCE_PARAMETER_id)
@@ -116,7 +122,7 @@ public class Scaler implements ScalingExecutor{
                     .setPath(path)
                     .build();
             RebalanceSuccessResultVO rst = (RebalanceSuccessResultVO) postParams(uri, RebalanceSuccessResultVO.class, sb.toString());
-            LoggerX.println(rst.toString());
+            LoggerX.println(TAG, "Results:\n" + rst.toString());
         } catch (URISyntaxException e) {
             e.printStackTrace();
             return false;
@@ -137,7 +143,6 @@ public class Scaler implements ScalingExecutor{
             HttpEntity entity = httpresponse.getEntity();
             if (entity != null) {
                 String jsonStr = EntityUtils.toString(entity);
-//                LoggerX.println(TAG, "json response:\n" + jsonStr);
                 httpresponse.close();
                 return new Gson().fromJson(jsonStr, cls);
             }
@@ -161,7 +166,6 @@ public class Scaler implements ScalingExecutor{
             HttpEntity entity = httpresponse.getEntity();
             if (entity != null) {
                 String jsonStr = EntityUtils.toString(entity);
-//                LoggerX.println(TAG, "json response:\n" + jsonStr);
                 httpresponse.close();
                 return new Gson().fromJson(jsonStr, cls);
             }
@@ -178,8 +182,18 @@ public class Scaler implements ScalingExecutor{
         if (!this.scaleOut()) {
             return false;
         }
+        // Wait for Storm cluster size transformed. 
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         if (!this.rebalanceCluster(prop)) {
-            return false;
+            LoggerX.error(TAG, "Rebalance failed for the first time!");
+            // Rebalance twice for robustness.
+            if (!this.rebalanceCluster(prop)) {
+                return false;
+            }
         }
         return true;
     }
@@ -189,8 +203,18 @@ public class Scaler implements ScalingExecutor{
         if (!this.scaleIn()) {
             return false;
         }
+        // Wait for Storm cluster size transformed. 
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         if (!this.rebalanceCluster(prop)) {
-            return false;
+            LoggerX.error(TAG, "Rebalance failed for the first time!");
+            // Rebalance twice for robustness.
+            if (!this.rebalanceCluster(prop)) {
+                return false;
+            }
         }
         return true;        
     }

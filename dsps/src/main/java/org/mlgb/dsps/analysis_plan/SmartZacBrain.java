@@ -1,8 +1,14 @@
 package org.mlgb.dsps.analysis_plan;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Random;
 
 import org.mlgb.dsps.util.Consts;
+import org.mlgb.dsps.util.vo.BoltVO;
+import org.mlgb.dsps.util.vo.MachinesStatsVO;
 
 import uni.akilis.helper.LoggerX;
 
@@ -14,7 +20,10 @@ public class SmartZacBrain extends BaseZacBrain implements Optimizer{
     private double[][] doms;
     private double[] gras;
     private int batch;
-
+    private double cHighOrigin;
+    private double cLowOrigin;
+    private Queue<MachinesStatsVO> machines = new LinkedList<>();
+    private Queue<ArrayList<BoltVO>> capacities = new LinkedList<ArrayList<BoltVO>>();
     public static final String TAG = SmartZacBrain.class.getName();
     
     
@@ -31,6 +40,8 @@ public class SmartZacBrain extends BaseZacBrain implements Optimizer{
         doms[1][1] = 0.5;
         gras[1] = 0.01;
         batch = this.profiler.BATCH_SIZE;
+        cHighOrigin = this.profiler.cHigh;
+        cLowOrigin = this.profiler.cLow;
     }
 
     
@@ -44,7 +55,13 @@ public class SmartZacBrain extends BaseZacBrain implements Optimizer{
 
     @Override
     public void exit() {
+        LoggerX.println(TAG, "Stopping optimizer ...");
         this.optimer.interrupt();
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         super.exit();
     }
 
@@ -53,7 +70,7 @@ public class SmartZacBrain extends BaseZacBrain implements Optimizer{
         @Override
         public void run() {
             try {
-                Thread.sleep(Consts.REBALANCE_DEFAUT_WAIT_TIME_SECONDS * 1000);
+                Thread.sleep(Consts.BRAIN_WAKE_UP_TIME * 1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -65,6 +82,9 @@ public class SmartZacBrain extends BaseZacBrain implements Optimizer{
                     break;
                 }       
             }
+            LoggerX.println(TAG, "\n\nOriginal thresholds:\n"
+                    + "cHigh: " + cHighOrigin + "\n"
+                    + "cLow: " + cLowOrigin + "\n\n");
             LoggerX.println(TAG, "\n\nOptimized thresholds:\n"
                     + "cHigh: " + profiler.cHigh + "\n"
                     + "cLow: " + profiler.cLow + "\n\n");
@@ -74,7 +94,16 @@ public class SmartZacBrain extends BaseZacBrain implements Optimizer{
     @Override
     public void optimizing() {
         if (this.profiler.capacities.size() < batch ) {
+            LoggerX.debug(TAG, "Not enough samples.");
             return;
+        }
+        this.machines.clear();
+        this.capacities.clear();
+        synchronized(this.profiler){
+            for (int i = 0; i < batch; i++) {
+                this.machines.offer(this.profiler.machines.poll());
+                this.capacities.offer(this.profiler.capacities.poll());
+            }
         }
         double[] opted = rrs(doms, gras);
         LoggerX.debug("\n\nOptimized thresholds:");
@@ -93,14 +122,16 @@ public class SmartZacBrain extends BaseZacBrain implements Optimizer{
      * @param params
      * @return
      */
-    public synchronized double cost(double[] params){
+    public double cost(double[] params){
         int[] hp = new int[batch];
         int priceVM = 0;
         double cHigh = params[0];
         double cLow = params[1];
+        Iterator<MachinesStatsVO> macIter = this.machines.iterator();
+        Iterator<ArrayList<BoltVO>> capIter = this.capacities.iterator();
         for (int i = 0; i < batch; i++) {
-            int h = this.profiler.machines.poll().getMachinesRunning();
-            double cap = Double.parseDouble(this.profiler.capacities.poll().get(0).getCapacity());
+            int h = macIter.next().getMachinesRunning();
+            double cap = Double.parseDouble(capIter.next().get(0).getCapacity());
             if (i == 0) {
                 hp[0] = h;
             }
@@ -112,7 +143,7 @@ public class SmartZacBrain extends BaseZacBrain implements Optimizer{
                     hp[i] = hp[i-1] - 1;
                 }
                 else{
-                    ;
+                    hp[i] = hp[i-1];
                 }
             }
             priceVM += hp[i];
