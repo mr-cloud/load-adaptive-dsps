@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.client.ClientProtocolException;
@@ -17,6 +19,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.mlgb.dsps.util.Consts;
+import org.mlgb.dsps.util.LoggerUtil;
 import org.mlgb.dsps.util.vo.RebalanceSuccessResultVO;
 import org.mlgb.dsps.util.vo.ScalingSuccessResultVO;
 
@@ -28,7 +31,8 @@ import uni.akilis.helper.LoggerX;
 public class Scaler implements ScalingExecutor{
     public static final String TAG = Scaler.class.getName();  
     private CloseableHttpClient httpclient = HttpClients.createDefault();
-
+    private Logger myLogger = LoggerUtil.getLogger();
+    
     @Override
     public boolean scaleOut() {
         try {
@@ -108,6 +112,7 @@ public class Scaler implements ScalingExecutor{
         }
         sb.append("}");
         LoggerX.println(TAG, "Rebalance options: " + sb.toString());
+        this.myLogger.log(Level.INFO, "Rebalance options: " + sb.toString());
         // Post method to rebalance cluster.
         String path = Consts.TOPOLOGY_PROFILE_PREFIX 
                         + prop.getProperty(Consts.REBALANCE_PARAMETER_id)
@@ -179,7 +184,10 @@ public class Scaler implements ScalingExecutor{
 
     @Override
     public boolean scaleOut(Properties prop) {
+        this.myLogger.log(Level.INFO, "*** scaleOut with rebalance START ***");
         if (!this.scaleOut()) {
+            this.myLogger.log(Level.WARNING, "scaleOut fail");
+            this.myLogger.log(Level.INFO, "*** scaleOut with rebalance END ***");
             return false;
         }
         // Wait for Storm cluster size transformed. 
@@ -190,17 +198,29 @@ public class Scaler implements ScalingExecutor{
         }
         if (!this.rebalanceCluster(prop)) {
             LoggerX.error(TAG, "Rebalance failed for the first time!");
+            this.myLogger.log(Level.WARNING, "Rebalance fail 1st!");
             // Rebalance twice for robustness.
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             if (!this.rebalanceCluster(prop)) {
+                this.myLogger.log(Level.WARNING, "Rebalance fail 2nd!");
+                this.myLogger.log(Level.INFO, "*** scaleOut with rebalance END ***");
                 return false;
             }
         }
+        this.myLogger.log(Level.INFO, "*** scaleOut with rebalance END ***");
         return true;
     }
 
     @Override
     public boolean scaleIn(Properties prop) {
+        this.myLogger.log(Level.INFO, "*** scaleIn with rebalance START ***");
         if (!this.scaleIn()) {
+            this.myLogger.log(Level.WARNING, "scaleIn fail");
+            this.myLogger.log(Level.INFO, "*** scaleIn with rebalance END ***");
             return false;
         }
         // Wait for Storm cluster size transformed. 
@@ -211,11 +231,20 @@ public class Scaler implements ScalingExecutor{
         }
         if (!this.rebalanceCluster(prop)) {
             LoggerX.error(TAG, "Rebalance failed for the first time!");
+            this.myLogger.log(Level.WARNING, "Rebalance fail 1st!");
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }            
             // Rebalance twice for robustness.
             if (!this.rebalanceCluster(prop)) {
+                this.myLogger.log(Level.WARNING, "Rebalance fail 2nd!");
+                this.myLogger.log(Level.INFO, "*** scaleIn with rebalance END ***");
                 return false;
             }
         }
+        this.myLogger.log(Level.INFO, "*** scaleIn with rebalance END ***");
         return true;        
     }
 

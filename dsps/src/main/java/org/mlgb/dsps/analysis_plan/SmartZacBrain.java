@@ -5,8 +5,11 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.mlgb.dsps.util.Consts;
+import org.mlgb.dsps.util.LoggerUtil;
 import org.mlgb.dsps.util.vo.BoltVO;
 import org.mlgb.dsps.util.vo.MachinesStatsVO;
 
@@ -25,7 +28,7 @@ public class SmartZacBrain extends BaseZacBrain implements Optimizer{
     private Queue<MachinesStatsVO> machines = new LinkedList<>();
     private Queue<ArrayList<BoltVO>> capacities = new LinkedList<ArrayList<BoltVO>>();
     public static final String TAG = SmartZacBrain.class.getName();
-    
+    private Logger myLogger = LoggerUtil.getLogger();
     
     public SmartZacBrain() {
         super();
@@ -107,10 +110,13 @@ public class SmartZacBrain extends BaseZacBrain implements Optimizer{
         }
         double[] opted = rrs(doms, gras);
         LoggerX.debug("\n\nOptimized thresholds:");
+        myLogger.log(Level.INFO, "***Optimized***");
         for (double param: opted) {
             LoggerX.debug(param);
+            myLogger.log(Level.INFO, String.valueOf(param));            
         }
         LoggerX.debug("\n\n");
+        myLogger.log(Level.INFO, "***Optimized***");
         synchronized(this.profiler){
             this.profiler.cHigh = opted[0];
             this.profiler.cLow = opted[1];            
@@ -260,6 +266,9 @@ Network Parameter Configuration
             i++;
             if (System.currentTimeMillis() - startTime > SEARCHING_TIME) {
                 STOP_CRITERION = false;
+                myLogger.log(Level.INFO, "***Optimized***"
+                        + "\nTIME OUT\n"
+                        + "***Optimized***");
             }
         }
         STOP_CRITERION = true;

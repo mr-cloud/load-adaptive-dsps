@@ -104,6 +104,18 @@ public class Consts {
      * The delay time for strategy launching. 
      */
     public static final int BRAIN_WAKE_UP_TIME = 3 * 60;
+    /**
+     * Logger name.
+     */
+    public static final String LOGGER_NAME = "Zac";
+    /**
+     * Logger directory.
+     */
+    public static final String LOG_DIR = "zac_log/";
+    /**
+     * Log file name.
+     */
+    public static final String LOG_FILE_NAME = "zac.log";
 
     
     

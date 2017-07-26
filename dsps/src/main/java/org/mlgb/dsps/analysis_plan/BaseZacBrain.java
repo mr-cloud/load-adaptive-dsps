@@ -177,7 +177,7 @@ public class BaseZacBrain{
                         }
                         else if (profiler.violationL > profiler.vLow) {
                             // Scale in.
-                            prop.put(Consts.REBALANCE_PARAMETER_numWorkers, Math.max(profiler.workersTotal - 1, Consts.MINIMUM_NUM_WORKERS));
+                            prop.put(Consts.REBALANCE_PARAMETER_numWorkers, profiler.workersTotal - 1);
                             scaler.scaleIn(prop);
                             try {
                                 profiler.isUpdatable = false;
