@@ -3,6 +3,8 @@ package org.mlgb.dsps.analysis_plan;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Properties;
 import java.util.Queue;
 import java.util.Random;
 import java.util.logging.Level;
@@ -10,6 +12,7 @@ import java.util.logging.Logger;
 
 import org.mlgb.dsps.util.Consts;
 import org.mlgb.dsps.util.LoggerUtil;
+import org.mlgb.dsps.util.Utils;
 import org.mlgb.dsps.util.vo.BoltVO;
 import org.mlgb.dsps.util.vo.MachinesStatsVO;
 
@@ -29,6 +32,8 @@ public class SmartZacBrain extends BaseZacBrain implements Optimizer{
     private Queue<ArrayList<BoltVO>> capacities = new LinkedList<ArrayList<BoltVO>>();
     public static final String TAG = SmartZacBrain.class.getName();
     private Logger myLogger = LoggerUtil.getLogger();
+    private double historyCost;
+    private double cur_y_opt;
     
     public SmartZacBrain() {
         super();
@@ -36,12 +41,19 @@ public class SmartZacBrain extends BaseZacBrain implements Optimizer{
         // Only consider the cHigh and cLow.
         doms = new double[2][2];
         gras = new double[2];
-        doms[0][0] = 0.75;
-        doms[0][1] = 0.9;
-        gras[0] = 0.01;
-        doms[1][0] = 0.0;
-        doms[1][1] = 0.5;
-        gras[1] = 0.01;
+
+        Properties prop = Utils.loadConfigProperties(Consts.ZAC_CONFIG);
+        if (prop == null) {
+            myLogger.log(Level.SEVERE, "Cant load config file!");
+            System.exit(1);
+        }
+        doms[0][0] = Double.parseDouble(prop.getProperty(Consts.CHIGH_INF, "0.8"));
+        doms[0][1] = Double.parseDouble(prop.getProperty(Consts.CHIGH_SUP, "0.9"));
+        gras[0] = Double.parseDouble(prop.getProperty(Consts.CHIGH_GRANULARITY, "0.01"));
+        doms[1][0] = Double.parseDouble(prop.getProperty(Consts.CLOW_INF, "0.5"));
+        doms[1][1] = Double.parseDouble(prop.getProperty(Consts.CLOW_SUP, "0.6"));
+        gras[1] = Double.parseDouble(prop.getProperty(Consts.CLOW_GRANULARITY, "0.01"));
+        
         batch = this.profiler.BATCH_SIZE;
         cHighOrigin = this.profiler.cHigh;
         cLowOrigin = this.profiler.cLow;
@@ -102,25 +114,36 @@ public class SmartZacBrain extends BaseZacBrain implements Optimizer{
         }
         this.machines.clear();
         this.capacities.clear();
+        this.historyCost = 0;
         synchronized(this.profiler){
             for (int i = 0; i < batch; i++) {
+                this.historyCost += this.profiler.machines.peek().getMachinesRunning();
                 this.machines.offer(this.profiler.machines.poll());
                 this.capacities.offer(this.profiler.capacities.poll());
             }
         }
         double[] opted = rrs(doms, gras);
         LoggerX.debug("\n\nOptimized thresholds:");
-        myLogger.log(Level.INFO, "***Optimized***");
+        myLogger.log(Level.INFO, "***Optimized START***");
+        StringBuilder sb = new StringBuilder();
         for (double param: opted) {
             LoggerX.debug(param);
-            myLogger.log(Level.INFO, String.valueOf(param));            
+            sb.append(String.valueOf(param))
+                .append("\t");
+            
         }
+        myLogger.log(Level.INFO, sb.toString());            
         LoggerX.debug("\n\n");
-        myLogger.log(Level.INFO, "***Optimized***");
-        synchronized(this.profiler){
-            this.profiler.cHigh = opted[0];
-            this.profiler.cLow = opted[1];            
+        myLogger.log(Level.INFO, "history cost: " + this.historyCost + ", "
+                + "optimized cost: " + this.cur_y_opt);
+        if (this.cur_y_opt < this.historyCost) {
+            synchronized(this.profiler){
+                myLogger.log(Level.INFO, "Optimization success!");
+                this.profiler.cHigh = opted[0];
+                this.profiler.cLow = opted[1];            
+            }   
         }
+        myLogger.log(Level.INFO, "***Optimized END***");
     }
     
     /**
@@ -137,15 +160,23 @@ public class SmartZacBrain extends BaseZacBrain implements Optimizer{
         Iterator<ArrayList<BoltVO>> capIter = this.capacities.iterator();
         for (int i = 0; i < batch; i++) {
             int h = macIter.next().getMachinesRunning();
-            double cap = Double.parseDouble(capIter.next().get(0).getCapacity());
+            List<BoltVO> caps = capIter.next();
+            double cap = Double.parseDouble(caps.get(0).getCapacity());
+            // Impact factor.
+            double alpha = 0.0;
+            for (BoltVO bolt: caps) {
+                alpha += Double.parseDouble(bolt.getCapacity());
+            }
+            alpha = alpha < Consts.ERROR_EPSILON? 1.0: cap / alpha;
             if (i == 0) {
                 hp[0] = h;
             }
             else {
-                if (cap * h / hp[i-1] > cHigh) {
+                // The more machines, the less capacity. 
+                if (alpha * cap * h / hp[i-1] > cHigh) {
                     hp[i] = hp[i-1] + 1;
                 }
-                else if (cap * h / hp[i-1] < cLow) {
+                else if (alpha * cap * h / hp[i-1] < cLow) {
                     hp[i] = hp[i-1] - 1;
                 }
                 else{
@@ -272,6 +303,7 @@ Network Parameter Configuration
             }
         }
         STOP_CRITERION = true;
+        cur_y_opt = y_opt;
         return x_opt;
     }
 

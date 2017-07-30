@@ -83,7 +83,7 @@ public class Consts {
      */
     public static final String RUNNING_TIME_KEY = "RUNNING_TIME";
     public static final long TEST_RUNNING_TIME = 30 * 60 * 1000;  
-    public static final long DEPLOYMENT_RUNNING_TIME = 3 * 60 * 60 * 1000;
+    public static final long DEPLOYMENT_RUNNING_TIME = 6 * 60 * 60 * 1000;
     /**
      * Shift the input rate at interval.
      */
@@ -116,6 +116,16 @@ public class Consts {
      * Log file name.
      */
     public static final String LOG_FILE_NAME = "zac.log";
+    /**
+     * Optimization parameters.
+     * 
+     */
+    public static final String CHIGH_INF = "0.7";
+    public static final String CHIGH_SUP = "0.9";
+    public static final String CHIGH_GRANULARITY = "0.01";
+    public static final String CLOW_INF = "0.4";
+    public static final String CLOW_SUP = "0.6";
+    public static final String CLOW_GRANULARITY = "0.01";
 
     
     
