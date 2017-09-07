@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class-diagram version="1.2.0" icons="true" automaticImage="PNG" always-add-relationships="false" generalizations="true" 
+  realizations="true" associations="true" dependencies="false" nesting-relationships="true" router="FAN">  
+  <package id="1" language="java" name="org.mlgb.dsps.app.sale_recommend" project="dsps" 
+    file="/dsps/src/main/java/org/mlgb/dsps/app/sale_recommend" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="228" y="165"/>    
+    <display autosize="true" stereotype="true" sort-features="false" accessors="true"/>  
+  </package>  
+  <package id="2" language="java" name="org.mlgb.dsps.executor" project="dsps" 
+    file="/dsps/src/main/java/org/mlgb/dsps/executor" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="183" y="302"/>    
+    <display autosize="true" stereotype="true" sort-features="false" accessors="true"/>  
+  </package>  
+  <package id="3" language="java" name="org.mlgb.dsps.launch" project="dsps" 
+    file="/dsps/src/main/java/org/mlgb/dsps/launch" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="754" y="173"/>    
+    <display autosize="true" stereotype="true" sort-features="false" accessors="true"/>  
+  </package>  
+  <package id="4" language="java" name="org.mlgb.dsps.monitor" project="dsps" 
+    file="/dsps/src/main/java/org/mlgb/dsps/monitor" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="516" y="168"/>    
+    <display autosize="true" stereotype="true" sort-features="false" accessors="true"/>  
+  </package>  
+  <package id="5" language="java" name="org.mlgb.dsps.util" project="dsps" file="/dsps/src/main/java/org/mlgb/dsps/util" 
+    binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="574" y="472"/>    
+    <display autosize="true" stereotype="true" sort-features="false" accessors="true"/>  
+  </package>  
+  <package id="6" language="java" name="org.mlgb.dsps.util.dao" project="dsps" 
+    file="/dsps/src/main/java/org/mlgb/dsps/util/dao" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="167" y="470"/>    
+    <display autosize="true" stereotype="true" sort-features="false" accessors="true"/>  
+  </package>  
+  <package id="7" language="java" name="org.mlgb.dsps.util.vo" project="dsps" 
+    file="/dsps/src/main/java/org/mlgb/dsps/util/vo" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="383" y="471"/>    
+    <display autosize="true" stereotype="true" sort-features="false" accessors="true"/>  
+  </package>  
+  <package id="8" language="java" name="uni.akilis.helper" project="dsps" file="/dsps/src/main/java/uni/akilis/helper" 
+    binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="765" y="475"/>    
+    <display autosize="true" stereotype="true" sort-features="false" accessors="true"/>  
+  </package>  
+  <package id="9" language="java" name="org.mlgb.dsps.analysis_plan" project="dsps" 
+    file="/dsps/src/main/java/org/mlgb/dsps/analysis_plan" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="501" y="299"/>    
+    <display autosize="true" stereotype="true" sort-features="false" accessors="true"/>  
+  </package>  
+  <dependency id="10">    
+    <end type="SOURCE" refId="9"/>    
+    <end type="TARGET" refId="5"/>  
+  </dependency>  
+  <dependency id="11">    
+    <end type="SOURCE" refId="9"/>    
+    <end type="TARGET" refId="4"/>  
+  </dependency>  
+  <dependency id="12">    
+    <end type="SOURCE" refId="9"/>    
+    <end type="TARGET" refId="7"/>  
+  </dependency>  
+  <dependency id="13">    
+    <end type="SOURCE" refId="9"/>    
+    <end type="TARGET" refId="2"/>  
+  </dependency>  
+  <dependency id="14">    
+    <end type="SOURCE" refId="3"/>    
+    <end type="TARGET" refId="9"/>  
+  </dependency>  
+  <dependency id="15">    
+    <end type="SOURCE" refId="9"/>    
+    <end type="TARGET" refId="8"/>  
+  </dependency>  
+  <classifier-display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+    sort-features="false" accessors="true" visibility="true">    
+    <attributes public="true" package="true" protected="true" private="true" static="true"/>    
+    <operations public="true" package="true" protected="true" private="true" static="true"/>  
+  </classifier-display>  
+  <association-display labels="true" multiplicity="true"/>
+</class-diagram>

@@ -22,7 +22,7 @@ public class SmartZacBrain extends BaseZacBrain implements Optimizer{
     private boolean STOP_CRITERION = false;
     private long SEARCHING_TIME = 1000 * 60 * 1;
     private Random random = new Random();
-    private Thread optimer;
+    private Thread optimizer;
     private double[][] doms;
     private double[] gras;
     private int batch;
@@ -63,15 +63,15 @@ public class SmartZacBrain extends BaseZacBrain implements Optimizer{
     @Override
     public void brainStorming() {
         super.brainStorming();
-        this.optimer = new Thread(new Opt());
-        this.optimer.start();
+        this.optimizer = new Thread(new Opt());
+        this.optimizer.start();
     }
 
 
     @Override
     public void exit() {
         LoggerX.println(TAG, "Stopping optimizer ...");
-        this.optimer.interrupt();
+        this.optimizer.interrupt();
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
@@ -112,6 +112,7 @@ public class SmartZacBrain extends BaseZacBrain implements Optimizer{
             LoggerX.debug(TAG, "Not enough samples.");
             return;
         }
+        myLogger.log(Level.INFO, "***Optimized START***");
         this.machines.clear();
         this.capacities.clear();
         this.historyCost = 0;
@@ -124,7 +125,6 @@ public class SmartZacBrain extends BaseZacBrain implements Optimizer{
         }
         double[] opted = rrs(doms, gras);
         LoggerX.debug("\n\nOptimized thresholds:");
-        myLogger.log(Level.INFO, "***Optimized START***");
         StringBuilder sb = new StringBuilder();
         for (double param: opted) {
             LoggerX.debug(param);

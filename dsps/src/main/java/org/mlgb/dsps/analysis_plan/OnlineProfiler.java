@@ -177,11 +177,6 @@ public class OnlineProfiler {
         this.profiling.start();
     }
 
-    // TODO
-    public OnlineProfiler(Jones jones, Optimizer opt){
-
-    }
-
     public void snapshot() {
         if (this.profiling != null) {
             this.profiling.interrupt();     

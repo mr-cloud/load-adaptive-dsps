@@ -27,7 +27,7 @@ public interface NightsWatcher {
     }
     
     /*
-     * from Zac
+     * from VBmanager
      */
     MachinesStatsVO getMachinesStats();
     
