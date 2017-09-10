@@ -1,6 +1,7 @@
 package org.mlgb.dsps.analysis_plan;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -34,7 +35,7 @@ public class SmartZacBrain extends BaseZacBrain implements Optimizer{
     private Logger myLogger = LoggerUtil.getLogger();
     private double historyCost;
     private double cur_y_opt;
-    
+
     public SmartZacBrain() {
         super();
         this.setStrategy(Consts.STRATEGY_THRESHOLD_BASED_OPT);
@@ -53,13 +54,13 @@ public class SmartZacBrain extends BaseZacBrain implements Optimizer{
         doms[1][0] = Double.parseDouble(prop.getProperty(Consts.CLOW_INF, "0.5"));
         doms[1][1] = Double.parseDouble(prop.getProperty(Consts.CLOW_SUP, "0.6"));
         gras[1] = Double.parseDouble(prop.getProperty(Consts.CLOW_GRANULARITY, "0.01"));
-        
+
         batch = this.profiler.BATCH_SIZE;
         cHighOrigin = this.profiler.cHigh;
         cLowOrigin = this.profiler.cLow;
     }
 
-    
+
     @Override
     public void brainStorming() {
         super.brainStorming();
@@ -129,8 +130,8 @@ public class SmartZacBrain extends BaseZacBrain implements Optimizer{
         for (double param: opted) {
             LoggerX.debug(param);
             sb.append(String.valueOf(param))
-                .append("\t");
-            
+            .append("\t");
+
         }
         myLogger.log(Level.INFO, sb.toString());            
         LoggerX.debug("\n\n");
@@ -145,7 +146,7 @@ public class SmartZacBrain extends BaseZacBrain implements Optimizer{
         }
         myLogger.log(Level.INFO, "***Optimized END***");
     }
-    
+
     /**
      * Cost function with given thresholds.
      * @param params
@@ -187,7 +188,7 @@ public class SmartZacBrain extends BaseZacBrain implements Optimizer{
         }        
         return priceVM;
     }
-    
+
 
     /**
      * Recursive Random Search. 
@@ -237,9 +238,9 @@ Network Parameter Configuration
         long numF = 1;
         int i = 0;
         int exploit_flag = 1;
-        double[] x_opt = x0;
+        double[] x_opt = Arrays.copyOf(x0, x0.length);
         double y_opt = yr;
-        
+
         /*
          * Exploration
          */
@@ -263,6 +264,7 @@ Network Parameter Configuration
                     if (y < fc) {
                         xl = xp;
                         fc = y;
+                        doms_neighbor = findSampleSpace(doms, gras, rou, xl);
                     }
                     else{
                         j++;
@@ -271,14 +273,16 @@ Network Parameter Configuration
                     if (j == l) {
                         rou *= c;
                         j = 0;
+                        doms_neighbor = findSampleSpace(doms, gras, rou, xl);
                     }
                     // Time out
                     if (System.currentTimeMillis() - startTime > SEARCHING_TIME) {
                         break;
-                    }                }
+                    }                
+                }
                 exploit_flag = 0;
                 if (fc < y_opt) {
-                    x_opt = xl;
+                    x_opt = Arrays.copyOf(xl, xl.length);
                     y_opt = fc;
                 }
             }
@@ -289,6 +293,8 @@ Network Parameter Configuration
                 exploit_flag = 1;
             }
             if (i == n) {
+                // Decrease yr to get higher pro
+                // for balancing between exploration and exploitation.
                 yr = (yr * numF + yr_next)/(numF+1);
                 numF++;
                 i = 0;
