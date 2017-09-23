@@ -1,31 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<class-diagram version="1.2.0" icons="true" always-add-relationships="false" generalizations="true" realizations="true" 
-  associations="true" dependencies="false" nesting-relationships="true" router="FAN">  
-  <class id="1" language="java" name="org.mlgb.dsps.app.sale_recommend.SaleTopologyBuilder.DummyBolt" project="dsps" 
-    file="/dsps/src/main/java/org/mlgb/dsps/app/sale_recommend/SaleTopologyBuilder.java" binary="false" 
-    corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="611" y="251"/>    
-    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
-      sort-features="false" accessors="true" visibility="true">      
-      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
-      <operations public="true" package="true" protected="true" private="true" static="true"/>    
-    </display>  
-  </class>  
-  <class id="2" language="java" name="org.mlgb.dsps.app.sale_recommend.SaleTopologyRunner" project="dsps" 
-    file="/dsps/src/main/java/org/mlgb/dsps/app/sale_recommend/SaleTopologyRunner.java" binary="false" 
-    corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="267" y="387"/>    
-    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
-      sort-features="false" accessors="true" visibility="true">      
-      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
-      <operations public="true" package="true" protected="true" private="true" static="true"/>    
-    </display>  
-  </class>  
-  <class id="3" language="java" name="org.mlgb.dsps.app.sale_recommend.SaleTopologyBuilder" project="dsps" 
+<class-diagram version="1.2.0" icons="true" automaticImage="PNG" always-add-relationships="false" generalizations="true" 
+  realizations="true" associations="true" dependencies="false" nesting-relationships="true" router="FAN">  
+  <class id="1" language="java" name="org.mlgb.dsps.app.sale_recommend.SaleTopologyBuilder" project="dsps" 
     file="/dsps/src/main/java/org/mlgb/dsps/app/sale_recommend/SaleTopologyBuilder.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="113" width="265" x="137" y="174"/>    
     <display autosize="false" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="2" language="java" name="org.mlgb.dsps.util.LatencySimulator" project="dsps" 
+    file="/dsps/src/main/java/org/mlgb/dsps/util/LatencySimulator.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="124" width="293" x="464" y="344"/>    
+    <display autosize="false" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="3" language="java" name="org.mlgb.dsps.app.sale_recommend.SaleTopologyRunner" project="dsps" 
+    file="/dsps/src/main/java/org/mlgb/dsps/app/sale_recommend/SaleTopologyRunner.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="267" y="387"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
@@ -40,18 +39,19 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="5" language="java" name="org.mlgb.dsps.util.LatencySimulator" project="dsps" 
-    file="/dsps/src/main/java/org/mlgb/dsps/util/LatencySimulator.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="124" width="293" x="464" y="344"/>    
-    <display autosize="false" stereotype="true" package="true" initial-value="false" signature="true" 
+  <class id="5" language="java" name="org.mlgb.dsps.app.sale_recommend.SaleTopologyBuilder.DummyBolt" project="dsps" 
+    file="/dsps/src/main/java/org/mlgb/dsps/app/sale_recommend/SaleTopologyBuilder.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="611" y="251"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
   <nesting id="6">    
-    <end type="SOURCE" refId="3"/>    
-    <end type="TARGET" refId="1"/>  
+    <end type="SOURCE" refId="1"/>    
+    <end type="TARGET" refId="5"/>  
   </nesting>  
   <classifier-display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
     sort-features="false" accessors="true" visibility="true">    
